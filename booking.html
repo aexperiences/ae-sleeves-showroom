@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Booking & Deposits · Sleeves OS</title>
+<meta name="description" content="The calendar, gated on the deposit. Nothing gets a slot until the artist's drawing time is paid for.">
+<link rel="canonical" href="https://www.aexperiences.com/apps/sleeves/booking.html">
+<meta property="og:title" content="Booking & Deposits · Sleeves OS">
+<meta property="og:description" content="The calendar, gated on the deposit. Nothing gets a slot until the artist's drawing time is paid for.">
+<meta property="og:image" content="https://www.aexperiences.com/Sleeves_OS.png">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="https://www.aexperiences.com/Sleeves_OS.png">
+<link rel="apple-touch-icon" href="https://www.aexperiences.com/Sleeves_OS.png">
+<meta name="theme-color" content="#b8324a">
+<link rel="stylesheet" href="sleeves.css">
+</head>
+<body>
+<script src="sleeves.js"></script>
+<script src="manual.js"></script>
+<script>
+(function(){
+  var S = window.Sleeves;
+  var content = S.mount({ active:"booking.html", crumb:"Booking & Deposits" });
+  var wk=S.thisWeek(), off=0;
+  content.appendChild(S.page("Booking & deposits",
+    "A slot is not a slot until a deposit is behind it. Everything unprotected is listed first, because that is the money at risk.",""));
+  var host=document.createElement("div"); content.appendChild(host);
+  
+  function render(){
+    host.innerHTML="";
+    var start=S.addDays(new Date(wk+"T12:00:00"),off*7), w=S.iso(start), dd=[];
+    for(var i=0;i<7;i++) dd.push(S.iso(S.addDays(start,i)));
+    var unp=S.unprotectedSessions(w);
+  
+    host.appendChild(S.card('<div class="stats">'+
+      S.stat("On the books",S.money(S.weekRevenue(w)),S.sessionsInWeek(w).length+" sessions")+
+      S.stat("Chair hours",S.weekHours(w).toFixed(1),"Across the whole studio")+
+      S.stat("Unprotected",unp.length,unp.length?S.money(S.exposedValue(w))+" with no deposit held":"Every slot is backed",unp.length?"bad":"good")+
+      S.stat("Deposit rule",S.money(S.RATES.depositMin)+" or "+S.pct(S.RATES.depositPctOfQuote*100),"whichever is greater · credits the final price")+'</div>'));
+  
+    if(unp.length) host.appendChild(S.card('<h2 class="warn">Slots with no deposit behind them</h2>'+
+      '<p class="sub">If one of these does not turn up, the chair is empty and the drawing time is gone. This is the number most studios only discover on the morning.</p>'+
+      '<div class="tablewrap"><table><thead><tr><th>When</th><th>Client</th><th>Artist</th><th class="right">At risk</th><th></th></tr></thead><tbody>'+
+      unp.map(function(s){ var r=S.db().requests.filter(function(x){return x.clientId===s.clientId&&x.artistId===s.artistId;})[0];
+        return '<tr><td class="mono">'+S.dayLabel(s.date)+' '+S.hhmm(s.start)+'</td>'+
+          '<td><b>'+S.esc(S.clientName(s.clientId))+'</b><div class="muted small">'+S.esc(s.note||"")+'</div></td>'+
+          '<td>'+S.esc(S.artistName(s.artistId))+'</td><td class="right mono warn">'+S.money(s.price)+'</td>'+
+          '<td class="right">'+(r?'<button class="btn" data-d="'+r.id+'">Take '+S.money(S.depositDue(r.quote||s.price))+'</button>':'<i class="muted">no request on file</i>')+'</td></tr>';
+      }).join("")+'</tbody></table></div>',"alert"));
+  
+    host.appendChild(S.card('<div class="cardhead"><h2>Week of '+S.dayLabel(w)+'</h2>'+
+      '<div class="rowbtns"><button class="btn ghost" id="p">‹ Previous</button>'+
+      '<button class="btn ghost" id="t">This week</button><button class="btn ghost" id="n">Next ›</button></div></div>'+
+      '<div class="cal">'+dd.map(function(d){
+        var rows=S.db().sessions.filter(function(s){return s.date===d;}).sort(function(a,b){return a.start<b.start?-1:1;});
+        return '<div class="cal-day'+(d===S.iso(S.TODAY)?" today":"")+'"><div class="cal-h">'+S.dayLabel(d)+'</div>'+
+          (rows.length?rows.map(function(s){
+            var chk=S.sessionReady(s), held=(s.depositApplied||0)>0;
+            return '<div class="cal-e'+(chk.ok?"":" open")+'" style="border-left-color:'+
+              (s.touchUp?"var(--watch)":"var(--tang)")+'">'+
+              '<div class="ce-t mono">'+S.hhmm(s.start)+' · '+s.hours+'h</div>'+
+              '<div class="ce-c">'+S.esc(S.clientName(s.clientId))+'</div>'+
+              '<div class="ce-g">'+S.esc(S.artistName(s.artistId).split(" ")[0])+' · '+S.esc(s.type)+
+                (s.price?(held?' · held':' · <b>no deposit</b>'):'')+'</div></div>';
+          }).join(""):'<div class="cal-none">—</div>')+'</div>';
+      }).join("")+'</div>'));
+  
+    host.appendChild(S.card('<h2>Why the deposit gate exists</h2><div class="split2">'+
+      '<div><h3>What the deposit pays for</h3><p>Hours of drawing that happen before the client ever sits down. '+
+      'It is not a booking fee and it is not profit — it comes straight off the final price.</p>'+
+      '<p class="muted small">Which is why it has to be non-refundable, and why saying so plainly in the agreement '+
+      'prevents most of the arguments.</p></div>'+
+      '<div><h3>What it prevents</h3><ul class="ticks">'+
+      '<li>A calendar full of people who have not committed</li>'+
+      '<li>Half a day of income lost to one no-show</li>'+
+      '<li>A slot that could have gone to someone who would have turned up</li>'+
+      '<li>The artist eating the drawing time either way</li></ul></div></div>'+
+      '<div class="note">Taking the money needs a licensed payment processor — the OS computes and authorises the charge, the processor moves it. Named as a vendor step rather than implied to be native.</div>'));
+  
+    Array.prototype.forEach.call(host.querySelectorAll("[data-d]"),function(b){
+      b.addEventListener("click",function(){ S.takeDeposit(b.getAttribute("data-d"));
+        S.toast("Deposit taken — the slot is held.","ok"); render(); }); });
+    host.querySelector("#p").addEventListener("click",function(){off--;render();});
+    host.querySelector("#n").addEventListener("click",function(){off++;render();});
+    host.querySelector("#t").addEventListener("click",function(){off=0;render();});
+  }
+  render();
+})();
+</script>
+</body>
+</html>

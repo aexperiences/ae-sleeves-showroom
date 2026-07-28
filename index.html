@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sleeves OS — the operating system for a tattoo studio</title>
+<meta name="description" content="Sleeves OS runs a tattoo studio end to end: the structured request queue that replaces the DM, quoting, the deposit gate that stops no-shows, one-of-one flash inventory, per-session consent and health screening, and booth-rent splits computed at the chair. A white-label build by Accelerated Experiences LLC.">
+<link rel="canonical" href="https://www.aexperiences.com/apps/sleeves/">
+<meta property="og:title" content="Sleeves OS — tattoo studio operating system">
+<meta property="og:description" content="Request, review, quote, deposit — then a date. Flash that retires itself. Consent that is actually enforced. Walk in and use it.">
+<meta property="og:image" content="https://www.aexperiences.com/Sleeves_OS.png">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://www.aexperiences.com/apps/sleeves/">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="https://www.aexperiences.com/Sleeves_OS.png">
+<link rel="apple-touch-icon" href="https://www.aexperiences.com/Sleeves_OS.png">
+<meta name="theme-color" content="#b8324a">
+<link rel="stylesheet" href="sleeves.css">
+<style>
+  body{background:linear-gradient(165deg,#584571,#3a2c53 60%,#271e3b)}
+  .gate{min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:34px 16px}
+  .gcard{max-width:940px;width:100%;background:var(--card);border-radius:20px;overflow:hidden;box-shadow:0 40px 90px -30px rgba(0,0,0,.6)}
+  .gtop{display:flex;gap:18px;align-items:center;padding:30px 34px 24px;border-bottom:1px solid var(--line)}
+  .gtop img{width:74px;height:74px;border-radius:17px;display:block;flex:none}
+  .gtop h1{margin:0;font-size:27px;letter-spacing:-.01em;color:var(--ink)}
+  .gtop p{margin:5px 0 0;font-size:14px;color:var(--mut)}
+  .gbody{padding:26px 34px 30px}
+  .lede{font-size:16.5px;line-height:1.65;color:var(--ink-2);margin:0 0 22px;max-width:66ch}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-bottom:24px}
+  .gf h3{margin:0 0 5px;font-size:13.5px;color:var(--ink)}
+  .gf p{margin:0;font-size:12.8px;line-height:1.55;color:var(--mut)}
+  .enter{display:inline-flex;align-items:center;gap:9px;background:var(--tang);color:#fff;border:none;
+    padding:15px 26px;border-radius:12px;font-size:16px;font-weight:600;text-decoration:none;cursor:pointer}
+  .enter:hover{background:var(--tang-2)}
+  .alt{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+  .alt a{font-size:13px;color:var(--ink-2);text-decoration:none;border:1px solid var(--line);border-radius:9px;padding:9px 14px;background:var(--card)}
+  .alt a:hover{border-color:var(--tang);color:var(--tang)}
+  .gfoot{padding:16px 34px;background:var(--sunk);font-size:12px;color:var(--mut);line-height:1.6}
+  @media(max-width:760px){.gtop{padding:22px 20px 18px;gap:13px}.gtop img{width:56px;height:56px}
+    .gtop h1{font-size:21px}.gbody{padding:20px}.grid3{grid-template-columns:1fr;gap:14px}
+    .gfoot{padding:14px 20px}.enter{width:100%;justify-content:center}}
+</style>
+</head>
+<body>
+<div class="gate"><div class="gcard">
+  <div class="gtop">
+    <img src="https://www.aexperiences.com/Sleeves_OS.png" alt="Sleeves OS">
+    <div><h1>Sleeves OS</h1><p>The operating system for a tattoo studio</p></div>
+  </div>
+  <div class="gbody">
+    <p class="lede">
+      A haircut is a booking: pick a time, show up. A tattoo is not. The artist has to see the references, decide
+      whether it is in their style, whether it is physically possible, and how long it will take — before a time can
+      exist at all. Every generic booking tool starts at the calendar. Sleeves OS starts four steps earlier.
+    </p>
+    <div class="grid3">
+      <div class="gf"><h3>The queue, not the DM</h3><p>Every request arrives with reference photos, placement, size in
+        inches and a budget the client has actually said out loud — so the artist can answer today instead of over a week.</p></div>
+      <div class="gf"><h3>The deposit gate</h3><p>Nothing gets a slot until the deposit is taken. It pays for the hours
+        of drawing that happen before anyone sits down, and it credits the final price.</p></div>
+      <div class="gf"><h3>Flash is inventory</h3><p>One-of-one. The moment a design is claimed it retires from the wall,
+        so two people are never promised the same drawing.</p></div>
+      <div class="gf"><h3>Consent per session</h3><p>ID, health screening, waiver and aftercare — every visit, not once
+        ever. The conditions that actually stop a session are enforced, not filed.</p></div>
+      <div class="gf"><h3>The money splits at the chair</h3><p>Booth rent applied on every session, deposits credited,
+        and the shop's real net after the supplies it provided.</p></div>
+      <div class="gf"><h3>Touch-ups are costed</h3><p>Free to the client is a chair and a set of supplies to you. It is
+        the one number nobody in this trade measures.</p></div>
+    </div>
+    <a class="enter" href="dashboard.html">Walk in and use it →</a>
+    <div class="alt">
+      <a href="requests.html">Quote a request</a>
+      <a href="booking.html">See what has no deposit</a>
+      <a href="flash.html">Try claiming taken flash</a>
+      <a href="consent.html">See a session blocked</a>
+      <a href="money.html">Split a session</a>
+    </div>
+  </div>
+  <div class="gfoot">
+    This is the real system running in your browser, not a slideshow — everything you type saves locally and nothing
+    leaves your device. It opens on a realistic sample studio; the ribbon at the top clears it so you can enter your own.
+    <b>Sleeves OS is a white-label build by Accelerated Experiences LLC.</b>
+    Nothing here is legal, medical or licensing advice.
+  </div>
+</div></div>
+</body>
+</html>

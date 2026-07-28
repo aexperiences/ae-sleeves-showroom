@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Artists · Sleeves OS</title>
+<meta name="description" content="The roster, booth splits, and the bloodborne certification a health inspector will ask for.">
+<link rel="canonical" href="https://www.aexperiences.com/apps/sleeves/artists.html">
+<meta property="og:title" content="Artists · Sleeves OS">
+<meta property="og:description" content="The roster, booth splits, and the bloodborne certification a health inspector will ask for.">
+<meta property="og:image" content="https://www.aexperiences.com/Sleeves_OS.png">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="https://www.aexperiences.com/Sleeves_OS.png">
+<link rel="apple-touch-icon" href="https://www.aexperiences.com/Sleeves_OS.png">
+<meta name="theme-color" content="#b8324a">
+<link rel="stylesheet" href="sleeves.css">
+</head>
+<body>
+<script src="sleeves.js"></script>
+<script src="manual.js"></script>
+<script>
+(function(){
+  var S = window.Sleeves;
+  var content = S.mount({ active:"artists.html", crumb:"Artists" });
+  content.appendChild(S.page("Artists",
+    "Booth splits and the credentials that decide whether someone can be on the books at all.",""));
+  var host=document.createElement("div"); content.appendChild(host);
+  function render(){
+    host.innerHTML="";
+    var iss=S.credIssues(), blocked=S.cannotWork();
+    host.appendChild(S.card('<div class="stats">'+
+      S.stat("On the roster",S.db().artists.length,S.db().artists.filter(function(a){return a.status==="Active";}).length+" active")+
+      S.stat("Blocked",blocked.length,blocked.length?blocked.map(function(a){return a.name;}).join(", "):"Everyone is clear",blocked.length?"bad":"good")+
+      S.stat("Expiring",iss.filter(function(i){return i.status.state==="expiring";}).length,"Inside "+S.CRED_WARN_DAYS+" days","watch")+
+      S.stat("Expired / missing",iss.filter(function(i){return i.status.state!=="expiring";}).length,"Action required now","bad")+'</div>'));
+  
+    host.appendChild(S.card('<h2>Credentials, worst first</h2>'+
+      '<p class="sub">A lapsed bloodborne pathogen card is a health-department inspectable item. An expired one takes that artist off the books.</p>'+
+      '<div class="tablewrap"><table><thead><tr><th>Artist</th><th>Credential</th><th>State</th><th class="right">When</th><th>What it means</th></tr></thead><tbody>'+
+      (iss.length?iss.map(function(i){ var b=i.status.state==="expiring"?"watch":"bad";
+        var when=i.status.state==="missing"?"not on file":i.status.days<0?Math.abs(i.status.days)+" days ago":"in "+i.status.days+" days";
+        return '<tr><td><b>'+S.esc(i.artist.name)+'</b><div class="muted small">'+S.esc(i.artist.booth)+'</div></td>'+
+          '<td>'+S.esc(i.cred.k)+(i.cred.required?' '+S.tag("required",""):'')+'</td>'+
+          '<td>'+S.tag(i.status.state,b)+'</td><td class="right mono">'+when+'</td>'+
+          '<td class="muted small">'+S.esc(i.cred.required&&i.status.state!=="expiring"?"Removes them from the books until renewed.":i.cred.note)+'</td></tr>';
+      }).join(""):'<tr><td colspan="5" class="muted">Everything current.</td></tr>')+'</tbody></table></div>'));
+  
+    S.db().artists.forEach(function(a){
+      var bl=S.credBlockers(a);
+      var mine=S.sessionsInWeek(S.thisWeek()).filter(function(s){return s.artistId===a.id;});
+      var booked=mine.reduce(function(t,s){return t+(s.price||0);},0);
+      var cut=mine.reduce(function(t,s){return t+S.moneyFor(s).shopCut;},0);
+      host.appendChild(S.card('<div class="cardhead"><h2>'+S.esc(a.name)+'</h2>'+
+        '<span class="tag">'+S.esc(a.handle)+'</span><span class="tag">'+S.esc(a.booth)+'</span>'+
+        (a.owner?S.tag("owner","good"):S.tag(S.pct(a.shopCut*100)+" to the shop",""))+
+        (a.status!=="Active"?S.tag(a.status,"watch"):"")+
+        (bl.length?S.tag("BLOCKED","bad"):"")+'</div>'+
+        (bl.length?'<div class="note warn"><b>Cannot be scheduled.</b> '+S.esc(bl.join(" · "))+
+          (mine.length?' They have <b>'+mine.length+'</b> session(s) on the books this week that need moving.':'')+'</div>':'')+
+        '<table class="kv"><tbody>'+
+          '<tr><th>Styles</th><td>'+a.styles.map(function(st){
+            return '<span class="chip static"><span class="dotc" style="background:'+S.styleColor(st)+'"></span>'+S.esc(st)+'</span>';}).join("")+'</td></tr>'+
+          '<tr><th>Rate</th><td class="mono">'+S.money(a.rate)+'/hr · '+S.money(a.dayRate)+' day rate</td></tr>'+
+          '<tr><th>This week</th><td class="mono">'+S.money(booked)+' booked · shop keeps '+S.money(cut)+'</td></tr>'+
+          '<tr><th>Since</th><td class="mono">'+S.esc(a.since)+(a.rating?' · '+a.rating+'★':'')+'</td></tr>'+
+        '</tbody></table>'+
+        '<div class="tablewrap"><table><tbody>'+
+        S.CREDS.map(function(c){ var st=S.credStatus(a,c.k);
+          var cls=st.state==="expired"||st.state==="missing"?"bad":st.state==="expiring"?"watch":"good";
+          return '<tr><td>'+S.esc(c.k)+'</td><td>'+S.tag(st.value||st.state,cls)+'</td>'+
+            '<td class="muted small">'+S.esc(c.note)+'</td></tr>'; }).join("")+'</tbody></table></div>'));
+    });
+  }
+  render();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Approval Desk · Sleeves OS</title>
+<meta name="description" content="Anything that changes a rate, declines a client, or commits money waits here.">
+<link rel="canonical" href="https://www.aexperiences.com/apps/sleeves/approvals.html">
+<meta property="og:title" content="Approval Desk · Sleeves OS">
+<meta property="og:description" content="Anything that changes a rate, declines a client, or commits money waits here.">
+<meta property="og:image" content="https://www.aexperiences.com/Sleeves_OS.png">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="https://www.aexperiences.com/Sleeves_OS.png">
+<link rel="apple-touch-icon" href="https://www.aexperiences.com/Sleeves_OS.png">
+<meta name="theme-color" content="#b8324a">
+<link rel="stylesheet" href="sleeves.css">
+</head>
+<body>
+<script src="sleeves.js"></script>
+<script src="manual.js"></script>
+<script>
+(function(){
+  var S = window.Sleeves;
+  var content = S.mount({ active:"approvals.html", crumb:"Approval Desk" });
+  content.appendChild(S.page("Approval Desk","It should stay nearly empty. If it fills up, the fences are set too tight.",""));
+  var host=document.createElement("div"); content.appendChild(host);
+  function render(){
+    host.innerHTML="";
+    var open=S.approvals().filter(function(a){return a.stage==="Awaiting Anthony";});
+    var done=S.approvals().filter(function(a){return a.stage!=="Awaiting Anthony";});
+    host.appendChild(S.card('<div class="stats">'+
+      S.stat("Waiting on you",open.length,open.length?"Each one is a real fence":"Nothing waiting",open.length?"watch":"good")+
+      S.stat("Cleared",done.length,"Decided this session")+
+      S.stat("Revenue-affecting",open.filter(function(a){return (a.tags||[]).indexOf("revenue")>=0;}).length,"Straight to the owner")+
+      S.stat("Compliance",open.filter(function(a){return (a.tags||[]).indexOf("compliance")>=0;}).length,"Health-department exposure")+'</div>'));
+    open.concat(done).forEach(function(a){
+      var settled=a.stage!=="Awaiting Anthony";
+      host.appendChild(S.card('<div class="cardhead"><h2>'+S.esc(a.title)+'</h2><span class="tag">'+S.esc(a.dept)+'</span>'+
+        (a.tags||[]).map(function(t){return S.tag(t,t==="revenue"||t==="compliance"?"watch":"");}).join("")+
+        (settled?S.tag(a.stage,a.stage==="Approved"?"good":""):"")+'</div>'+
+        '<table class="kv"><tbody><tr><th>Why it is being asked</th><td>'+S.esc(a.why)+'</td></tr>'+
+        '<tr><th>What happens if you say yes</th><td>'+S.esc(a.impact)+'</td></tr>'+
+        '<tr><th>Confidence</th><td class="mono">'+a.conf+'/100 '+S.bar(a.conf,a.conf>=80?"var(--good)":"var(--watch)")+'</td></tr></tbody></table>'+
+        (settled?'':'<div class="rowbtns"><button class="btn" data-y="'+a.id+'">Approve</button>'+
+          '<button class="btn ghost" data-n="'+a.id+'">Send it back</button></div>')));
+    });
+    host.appendChild(S.card('<h2>What always reaches this desk</h2><ul class="ticks">'+
+      '<li>Declining a client, or a piece</li><li>Any change to the shop minimum, hourly rate or booth split</li>'+
+      '<li>Pulling an artist off the books</li><li>Anything that sends to a client</li>'+
+      '<li>Waiving or refunding a deposit</li><li>Anything that commits money</li></ul>'+
+      '<div class="note">Everything else the departments clear themselves.</div>'));
+    Array.prototype.forEach.call(host.querySelectorAll("[data-y]"),function(b){
+      b.addEventListener("click",function(){ S.decideApproval(b.getAttribute("data-y"),"approve"); S.toast("Approved.","ok"); render(); }); });
+    Array.prototype.forEach.call(host.querySelectorAll("[data-n]"),function(b){
+      b.addEventListener("click",function(){ S.decideApproval(b.getAttribute("data-n"),"return"); S.toast("Sent back.","ok"); render(); }); });
+  }
+  render();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Consent & Health · Sleeves OS</title>
+<meta name="description" content="Per-session screening, ID, waiver and aftercare — with the blocking conditions actually enforced.">
+<link rel="canonical" href="https://www.aexperiences.com/apps/sleeves/consent.html">
+<meta property="og:title" content="Consent & Health · Sleeves OS">
+<meta property="og:description" content="Per-session screening, ID, waiver and aftercare — with the blocking conditions actually enforced.">
+<meta property="og:image" content="https://www.aexperiences.com/Sleeves_OS.png">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="https://www.aexperiences.com/Sleeves_OS.png">
+<link rel="apple-touch-icon" href="https://www.aexperiences.com/Sleeves_OS.png">
+<meta name="theme-color" content="#b8324a">
+<link rel="stylesheet" href="sleeves.css">
+</head>
+<body>
+<script src="sleeves.js"></script>
+<script src="manual.js"></script>
+<script>
+(function(){
+  var S = window.Sleeves;
+  var content = S.mount({ active:"consent.html", crumb:"Consent & Health" });
+  content.appendChild(S.page("Consent & health",
+    "No consent, no needle. Consent is taken per session, not once per client — health facts change and the waiver has to name that day's work.",""));
+  var host=document.createElement("div"); content.appendChild(host);
+  
+  function render(){
+    host.innerHTML="";
+    var nr=S.sessionsNotReady(), today=S.iso(S.TODAY);
+    var hard=nr.filter(function(x){return x.hard;}), soft=nr.filter(function(x){return !x.hard;});
+  
+    host.appendChild(S.card('<div class="stats">'+
+      S.stat("Cannot proceed",hard.length,hard.length?"ID, a blocking condition, or a blocked artist":"Nothing hard-blocked",hard.length?"bad":"good")+
+      S.stat("Missing consent today",soft.length,"Due today with paperwork incomplete",soft.length?"watch":"good")+
+      S.stat("Clients on file",S.db().clients.length,S.db().clients.filter(function(c){return !c.idOnFile;}).length+" without ID on file")+
+      S.stat("Touch-up window",S.RATES.touchUpDays+" days","Complimentary where the artist judges it warranted")+'</div>'));
+  
+    if(nr.length) host.appendChild(S.card('<h2 class="warn">Sessions that are not ready</h2>'+
+      '<div class="tablewrap"><table><thead><tr><th>When</th><th>Client</th><th>Artist</th><th>What is missing</th><th></th></tr></thead><tbody>'+
+      nr.map(function(x){ var s=x.session;
+        return '<tr class="'+(x.hard?"row-warn":"")+'"><td class="mono">'+S.dayLabel(s.date)+'</td>'+
+          '<td><b>'+S.esc(S.clientName(s.clientId))+'</b></td><td>'+S.esc(S.artistName(s.artistId))+'</td>'+
+          '<td>'+x.check.why.map(function(w){return S.tag(w,x.hard?"bad":"watch");}).join(" ")+'</td>'+
+          '<td class="right">'+(x.hard?'':'<button class="btn" data-c="'+s.id+'">Take consent</button>')+'</td></tr>';
+      }).join("")+'</tbody></table></div>',"alert"));
+  
+    host.appendChild(S.card('<h2>The screening that changes the answer</h2>'+
+      '<p class="sub">Not a form to be filled in and filed. Each of these changes whether you tattoo someone today, or how.</p>'+
+      '<div class="tablewrap"><table><thead><tr><th>Condition</th><th>Effect</th><th>What the artist does</th></tr></thead><tbody>'+
+      S.HEALTH.map(function(h){ return '<tr><td><b>'+S.esc(h.k)+'</b></td>'+
+        '<td>'+(h.block?S.tag("hard stop","bad"):S.tag("proceed with care","watch"))+'</td>'+
+        '<td class="muted small">'+S.esc(h.why)+'</td></tr>'; }).join("")+'</tbody></table></div>'+
+      S.srcNote("Tattoo consent and minimum-age rules are state-regulated and vary. Confirm yours before go-live. This is not legal or medical advice.")));
+  
+    host.appendChild(S.card('<h2>Clients</h2><div class="tablewrap"><table><thead><tr>'+
+      '<th>Client</th><th class="right">Age</th><th>ID</th><th>Health flags</th><th>Existing work</th></tr></thead><tbody>'+
+      S.db().clients.map(function(c){ var bl=S.clientBlockers(c.id);
+        return '<tr class="'+(bl.length?"row-warn":"")+'"><td><b>'+S.esc(c.name)+'</b>'+
+          (c.note?'<div class="muted small">'+S.esc(c.note)+'</div>':'')+'</td>'+
+          '<td class="right mono '+(c.age!=null&&c.age<18?"warn":"")+'">'+(c.age==null?"—":c.age)+'</td>'+
+          '<td>'+(c.idOnFile?S.tag("on file","good"):S.tag("missing","bad"))+'</td>'+
+          '<td>'+((c.health||[]).length?c.health.map(function(h){
+              var meta=S.HEALTH.filter(function(x){return x.k===h;})[0];
+              return S.tag(h, meta&&meta.block?"bad":"watch"); }).join(" "):'<span class="muted">none declared</span>')+'</td>'+
+          '<td class="muted small">'+S.esc(c.existing||"—")+'</td></tr>';
+      }).join("")+'</tbody></table></div>'));
+  
+    Array.prototype.forEach.call(host.querySelectorAll("[data-c]"),function(b){
+      b.addEventListener("click",function(){ sheet(b.getAttribute("data-c")); }); });
+  }
+  
+  function sheet(id){
+    var s=S.sessionById(id), c=S.clientById(s.clientId);
+    var w=document.createElement("div"); w.className="modal-scrim";
+    w.innerHTML='<div class="modal"><h2>Consent — '+S.esc(c.name)+'</h2>'+
+      '<p class="sub">'+S.dayLabel(s.date)+' · '+S.esc(s.type)+' with '+S.esc(S.artistName(s.artistId))+'</p>'+
+      ((c.health||[]).length?'<div class="note warn"><b>Declared:</b> '+S.esc(c.health.join(", "))+'</div>':'')+
+      S.CONSENT_ITEMS.map(function(i){
+        var opt=i.indexOf("optional")>=0;
+        return '<label class="chk"><input type="checkbox" value="'+S.esc(i)+'"'+
+          ((s.consent||[]).indexOf(i)>=0?" checked":"")+'> '+S.esc(i)+(opt?' <span class="muted small">optional</span>':'')+'</label>';
+      }).join("")+
+      '<div id="err" class="note warn" style="display:none"></div>'+
+      '<div class="rowbtns"><button class="btn" id="save">Record consent</button>'+
+      '<button class="btn ghost" id="cx">Cancel</button></div></div>';
+    document.body.appendChild(w);
+    w.querySelector("#cx").addEventListener("click",function(){ w.remove(); });
+    w.querySelector("#save").addEventListener("click",function(){
+      var picked=[]; w.querySelectorAll('input[type=checkbox]').forEach(function(x){ if(x.checked) picked.push(x.value); });
+      S.recordConsent(id,picked);
+      var miss=S.consentMissing(S.sessionById(id));
+      if(miss.length){ var e=w.querySelector("#err"); e.style.display="block";
+        e.innerHTML="<b>Still required before the needle:</b><ul><li>"+miss.map(S.esc).join("</li><li>")+"</li></ul>";
+        e.scrollIntoView({behavior:"smooth",block:"center"}); render(); return; }
+      w.remove(); S.toast("Consent recorded. The session can run.","ok"); render();
+    });
+  }
+  render();
+})();
+</script>
+</body>
+</html>

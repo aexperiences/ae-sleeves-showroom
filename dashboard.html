@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Command Center · Sleeves OS</title>
+<meta name="description" content="The studio on one screen — what is on the books, what is unprotected by a deposit, and what cannot legally run.">
+<link rel="canonical" href="https://www.aexperiences.com/apps/sleeves/dashboard.html">
+<meta property="og:title" content="Command Center · Sleeves OS">
+<meta property="og:description" content="The studio on one screen — what is on the books, what is unprotected by a deposit, and what cannot legally run.">
+<meta property="og:image" content="https://www.aexperiences.com/Sleeves_OS.png">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="https://www.aexperiences.com/Sleeves_OS.png">
+<link rel="apple-touch-icon" href="https://www.aexperiences.com/Sleeves_OS.png">
+<meta name="theme-color" content="#b8324a">
+<link rel="stylesheet" href="sleeves.css">
+</head>
+<body>
+<script src="sleeves.js"></script>
+<script src="manual.js"></script>
+<script>
+(function(){
+  var S = window.Sleeves;
+  var content = S.mount({ active:"dashboard.html", crumb:"Command Center" });
+  var wk=S.thisWeek();
+  content.appendChild(S.page("Command Center","Computed live from this studio's own book. Nothing here was typed in by hand.",""));
+  content.appendChild(S.card('<h2>The week, in numbers</h2><p class="sub">Week of '+S.dayLabel(wk)+'.</p><div class="stats">'+
+    S.kpis().map(function(k){return S.stat(k.k,k.v,k.n,k.band);}).join("")+'</div>'));
+  
+  var unp=S.unprotectedSessions(wk), nr=S.sessionsNotReady(wk), rev=S.needsReview(),
+      dep=S.awaitingDeposit(), tu=S.touchUps(wk), cw=S.cannotWork(), dc=S.docsAwaiting();
+  function row(b,what,why,href,cta){ return '<tr><td>'+S.tag(b==="bad"?"Now":"Today",b)+'</td><td><b>'+
+    S.esc(what)+'</b><div class="muted small">'+S.esc(why)+'</div></td>'+
+    '<td class="right"><a class="btn ghost" href="'+href+'">'+S.esc(cta)+'</a></td></tr>'; }
+  var t="";
+  if(cw.length) t+=row("bad",cw.length+" artist(s) cannot legally work","Bloodborne certification or licence lapsed — health-department inspectable.","artists.html","Fix now");
+  if(nr.filter(function(x){return x.hard;}).length) t+=row("bad",nr.filter(function(x){return x.hard;}).length+" booked session(s) cannot proceed",
+    "Missing ID, a blocking health condition, or a blocked artist.","consent.html","Resolve");
+  if(unp.length) t+=row("bad",unp.length+" slot(s) with no deposit held — "+S.money(S.exposedValue(wk))+" exposed",
+    "A no-show on these costs the chair and the drawing time.","booking.html","Take deposits");
+  if(nr.filter(function(x){return x.dueToday&&!x.hard;}).length) t+=row("watch",nr.filter(function(x){return x.dueToday&&!x.hard;}).length+" session(s) today missing consent",
+    "ID, health screening, waiver or aftercare not yet recorded.","consent.html","Complete it");
+  if(rev.length) t+=row("watch",rev.length+" request(s) waiting on an artist","Every hour here is a client deciding whether to go elsewhere.","requests.html","Review");
+  if(dep.length) t+=row("watch",dep.length+" quote(s) waiting on a deposit","Quoted and agreed, but the slot is not held yet.","requests.html","Chase");
+  if(dc.length) t+=row("watch",dc.length+" waiver(s) or agreement(s) unsigned","Sent, not yet signed.","sign.html","Chase");
+  if(!t) t='<tr><td colspan="3" class="muted">Nothing is on fire. Every slot is deposit-backed, every artist is clear, and the queue is answered.</td></tr>';
+  content.appendChild(S.card('<h2>What needs a person today</h2><p class="sub">Ranked by what actually costs money or creates exposure.</p>'+
+    '<div class="tablewrap"><table><tbody>'+t+'</tbody></table></div>'));
+  
+  /* the week on the books */
+  content.appendChild(S.card('<h2>This week in the chairs</h2><div class="tablewrap"><table><thead><tr>'+
+    '<th>When</th><th>Client</th><th>Artist</th><th>Type</th><th class="right">Price</th>'+
+    '<th class="right">Shop cut</th><th>Ready?</th></tr></thead><tbody>'+
+    S.sessionsInWeek(wk).sort(function(a,b){return a.date<b.date?-1:a.date>b.date?1:(a.start<b.start?-1:1);}).map(function(s){
+      var m=S.moneyFor(s), chk=S.sessionReady(s);
+      return '<tr><td class="mono">'+S.dayLabel(s.date)+'<div class="muted small">'+S.hhmm(s.start)+' · '+s.hours+'h</div></td>'+
+        '<td><b>'+S.esc(S.clientName(s.clientId))+'</b></td><td>'+S.esc(S.artistName(s.artistId))+'</td>'+
+        '<td>'+S.esc(s.type)+(s.touchUp?' '+S.tag("free","watch"):'')+'</td>'+
+        '<td class="right mono">'+(s.price?S.money(s.price):'<span class="muted">—</span>')+'</td>'+
+        '<td class="right mono">'+(m.shopCut?S.money(m.shopCut):'<span class="muted">—</span>')+'</td>'+
+        '<td>'+(s.status==="Complete"?S.tag("done","good"):chk.ok?S.tag("ready","good"):S.tag("blocked","bad"))+'</td></tr>';
+    }).join("")+'</tbody></table></div>'));
+  
+  /* where the money comes from */
+  var ra=S.revenueByArtist(wk);
+  content.appendChild(S.card('<h2>Revenue by artist, and what the shop keeps</h2>'+
+    '<p class="sub">The split happens at the chair. An owner-artist shows a zero cut, which is correct — they are the shop.</p>'+
+    '<div class="tablewrap"><table><thead><tr><th>Artist</th><th>Split</th><th class="right">Booked</th>'+
+    '<th class="right">Shop cut</th><th class="right">Artist keeps</th><th>Share</th></tr></thead><tbody>'+
+    Object.keys(ra).sort(function(a,b){return ra[b]-ra[a];}).map(function(id){
+      var a=S.artistById(id), mine=S.sessionsInWeek(wk).filter(function(x){return x.artistId===id;});
+      var cut=mine.reduce(function(t,x){return t+S.moneyFor(x).shopCut;},0);
+      var net=mine.reduce(function(t,x){return t+S.moneyFor(x).artistNet;},0);
+      var max=Math.max.apply(null,Object.keys(ra).map(function(k){return ra[k];}));
+      return '<tr><td><b>'+S.esc(a?a.name:"")+'</b><div class="muted small">'+S.esc(a?a.handle:"")+' · '+S.esc(a?a.booth:"")+'</div></td>'+
+        '<td>'+(a&&a.owner?S.tag("owner",""):S.pct((a?a.shopCut:0)*100))+'</td>'+
+        '<td class="right mono">'+S.money(ra[id])+'</td><td class="right mono">'+S.money(cut)+'</td>'+
+        '<td class="right mono">'+S.money(net)+'</td>'+
+        '<td style="min-width:140px">'+S.bar(ra[id]/max*100,"var(--tang)")+'</td></tr>';
+    }).join("")+'</tbody></table></div>'+
+    S.srcNote("Shop cut is each artist's own booth-rent percentage. Supplies of "+S.money2(S.RATES.suppliesPerHour)+"/hr are the shop's cost and come out of the shop's cut, not the artist's.")));
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Flash Wall · Sleeves OS</title>
+<meta name="description" content="One-of-one design inventory that retires itself the moment it is claimed.">
+<link rel="canonical" href="https://www.aexperiences.com/apps/sleeves/flash.html">
+<meta property="og:title" content="Flash Wall · Sleeves OS">
+<meta property="og:description" content="One-of-one design inventory that retires itself the moment it is claimed.">
+<meta property="og:image" content="https://www.aexperiences.com/Sleeves_OS.png">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="https://www.aexperiences.com/Sleeves_OS.png">
+<link rel="apple-touch-icon" href="https://www.aexperiences.com/Sleeves_OS.png">
+<meta name="theme-color" content="#b8324a">
+<link rel="stylesheet" href="sleeves.css">
+</head>
+<body>
+<script src="sleeves.js"></script>
+<script src="manual.js"></script>
+<script>
+(function(){
+  var S = window.Sleeves;
+  var content = S.mount({ active:"flash.html", crumb:"Flash Wall" });
+  content.appendChild(S.page("The flash wall",
+    "A flash design is tattooed once. The moment someone claims it, it comes off the wall — you cannot promise the same drawing to two people.",""));
+  var host=document.createElement("div"); content.appendChild(host);
+  
+  function render(){
+    host.innerHTML="";
+    var all=S.db().flash;
+    host.appendChild(S.card('<div class="stats">'+
+      S.stat("On the wall",S.flashAvailable().length,"Available to claim","good")+
+      S.stat("Claimed",all.filter(function(f){return f.status==="Claimed";}).length,"Spoken for, not yet tattooed","watch")+
+      S.stat("Tattooed",all.filter(function(f){return f.status==="Tattooed";}).length,"Retired for good")+
+      S.stat("Wall value",S.money(S.flashAvailable().reduce(function(a,f){return a+f.price;},0)),"If everything available sold")+'</div>'));
+  
+    S.db().artists.forEach(function(a){
+      var mine=all.filter(function(f){return f.artistId===a.id;});
+      if(!mine.length) return;
+      host.appendChild(S.card('<div class="cardhead"><h2>'+S.esc(a.name)+'</h2>'+
+        '<span class="tag">'+S.esc(a.handle)+'</span></div>'+
+        '<div class="tablewrap"><table><thead><tr><th>Design</th><th>Style</th><th class="right">Size</th>'+
+        '<th class="right">Price</th><th>Status</th><th></th></tr></thead><tbody>'+
+        mine.map(function(f){
+          return '<tr><td><b>'+S.esc(f.title)+'</b></td>'+
+            '<td><span class="dotc" style="background:'+S.styleColor(f.style)+'"></span>'+S.esc(f.style)+'</td>'+
+            '<td class="right mono">'+f.sizeIn+' in</td><td class="right mono">'+S.money(f.price)+'</td>'+
+            '<td>'+(f.status==="Available"?S.tag("on the wall","good"):
+                    f.status==="Claimed"?S.tag("claimed by "+S.clientName(f.claimedBy),"watch"):
+                    S.tag("tattooed",""))+'</td>'+
+            '<td class="right rowbtns">'+
+              (f.status==="Available"?'<button class="btn" data-c="'+f.id+'">Claim it</button>':'')+
+              (f.status==="Claimed"?'<button class="btn ghost" data-t="'+f.id+'">Mark tattooed</button>'+
+                '<button class="btn ghost" data-r="'+f.id+'">Release</button>':'')+
+            '</td></tr>';
+        }).join("")+'</tbody></table></div>'));
+    });
+  
+    host.appendChild(S.card('<h2>Why this is inventory, not a catalogue</h2>'+
+      '<p>A flash sheet in a binder has no state. Two clients can fall in love with the same drawing in the same week, '+
+      'and the artist finds out when the second one arrives. Here the design carries its own status: available, claimed, '+
+      'or tattooed — and claiming one that is already gone tells you exactly who has it.</p>'+
+      '<div class="note">Try it: claim a design that is already claimed and see what comes back.</div>'));
+  
+    Array.prototype.forEach.call(host.querySelectorAll("[data-c]"),function(b){
+      b.addEventListener("click",function(){
+        var cs=S.db().clients;
+        var p=prompt("Claimed by which client?\n\n"+cs.map(function(c,i){return (i+1)+". "+c.name;}).join("\n"));
+        if(!p) return;
+        var c=cs[parseInt(p,10)-1]||cs.filter(function(x){return x.name.toLowerCase().indexOf(String(p).toLowerCase())>=0;})[0];
+        var res=S.claimFlash(b.getAttribute("data-c"), c?c.id:null);
+        S.toast(res.ok?"Claimed — it is off the wall.":res.why, res.ok?"ok":"bad"); render(); }); });
+    Array.prototype.forEach.call(host.querySelectorAll("[data-t]"),function(b){
+      b.addEventListener("click",function(){ S.markTattooed(b.getAttribute("data-t")); S.toast("Marked tattooed.","ok"); render(); }); });
+    Array.prototype.forEach.call(host.querySelectorAll("[data-r]"),function(b){
+      b.addEventListener("click",function(){ S.releaseFlash(b.getAttribute("data-r")); S.toast("Back on the wall.","ok"); render(); }); });
+  }
+  render();
+})();
+</script>
+</body>
+</html>

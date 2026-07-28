@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Requests & Review · Sleeves OS</title>
+<meta name="description" content="The structured intake that replaces the DM — references, placement, size, budget, and an artist decision.">
+<link rel="canonical" href="https://www.aexperiences.com/apps/sleeves/requests.html">
+<meta property="og:title" content="Requests & Review · Sleeves OS">
+<meta property="og:description" content="The structured intake that replaces the DM — references, placement, size, budget, and an artist decision.">
+<meta property="og:image" content="https://www.aexperiences.com/Sleeves_OS.png">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="https://www.aexperiences.com/Sleeves_OS.png">
+<link rel="apple-touch-icon" href="https://www.aexperiences.com/Sleeves_OS.png">
+<meta name="theme-color" content="#b8324a">
+<link rel="stylesheet" href="sleeves.css">
+</head>
+<body>
+<script src="sleeves.js"></script>
+<script src="manual.js"></script>
+<script>
+(function(){
+  var S = window.Sleeves;
+  var content = S.mount({ active:"requests.html", crumb:"Requests & Review" });
+  content.appendChild(S.page("Requests & review",
+    "This is where a tattoo actually starts — not on a calendar. Every request arrives with references, placement, size and budget, so the artist can decide instead of asking six questions over three days.",
+    '<button class="btn" id="add">+ Log a request</button>'));
+  var host=document.createElement("div"); content.appendChild(host);
+  
+  function render(){
+    host.innerHTML="";
+    var cts=S.pipelineCounts();
+    host.appendChild(S.card('<div class="stats">'+
+      S.stat("Open requests",S.openRequests().length,"Everything not declined or healed")+
+      S.stat("Waiting on an artist",S.needsReview().length,"Every hour here is a client deciding",S.needsReview().length?"watch":"good")+
+      S.stat("Awaiting deposit",S.awaitingDeposit().length,"Quoted, slot not yet held",S.awaitingDeposit().length?"watch":"good")+
+      S.stat("Pipeline",S.money(S.pipelineValue()),(S.quoteWinRate()==null?"—":S.pct(S.quoteWinRate()))+" of quotes convert","good")+'</div>'+
+      '<div class="pipe">'+S.STAGES.map(function(st){
+        return '<div class="pipe-col"><div class="pipe-n">'+(cts[st]||0)+'</div><div class="pipe-l">'+S.esc(st)+'</div></div>';
+      }).join("")+'</div>'));
+  
+    S.db().requests.forEach(function(r){
+      var c=S.clientById(r.clientId), a=S.artistById(r.artistId);
+      var blockers=S.clientBlockers(r.clientId);
+      var flag=S.PLACEMENT_FLAGS[r.placement];
+      var due=r.quote?S.depositDue(r.quote):0;
+      host.appendChild(S.card(
+        '<div class="cardhead"><h2>'+S.esc(c?c.name:"—")+'</h2>'+
+        '<span class="tag"><span class="dotc" style="background:'+S.styleColor(r.style)+'"></span>'+S.esc(r.style)+'</span>'+
+        '<span class="tag">'+S.esc(r.placement)+'</span>'+
+        S.tag(r.stage,S.stageBand(r.stage))+'</div>'+
+        '<p class="sub">'+S.esc(a?a.name:"unassigned")+' · received '+S.esc(r.received)+' · '+r.refs+' reference photo(s) · '+
+          (r.sizeIn?r.sizeIn+' in':'multi-session')+' · budget '+S.money(r.budget)+'</p>'+
+        '<p>'+S.esc(r.desc)+'</p>'+
+        (blockers.length?'<div class="note warn"><b>Before this goes anywhere:</b><ul>'+
+          blockers.map(function(b){return '<li>'+S.esc(b)+'</li>';}).join("")+'</ul></div>':'')+
+        (flag?'<div class="note"><b>'+S.esc(r.placement)+'.</b> '+S.esc(flag)+'</div>':'')+
+        (r._blocked?'<div class="note warn"><b>Cannot book.</b> '+S.esc(r._blocked)+'</div>':'')+
+        '<table class="kv"><tbody>'+
+          '<tr><th>Quote</th><td class="mono">'+(r.quote?S.money(r.quote):'<i class="muted">not quoted yet</i>')+'</td></tr>'+
+          (r.quote?'<tr><th>Deposit to hold the date</th><td class="mono">'+S.money(due)+
+            ' <span class="muted small">(greater of '+S.money(S.RATES.depositMin)+' or '+S.pct(S.RATES.depositPctOfQuote*100)+
+            ' of the quote — credited to the final price)</span></td></tr>':'')+
+          (r.quote?'<tr><th>Held</th><td class="mono">'+S.money(S.depositHeld(r))+' '+
+            (S.depositSatisfied(r)?S.tag("slot is held","good"):S.tag("not held","bad"))+'</td></tr>':'')+
+        '</tbody></table>'+
+        '<div class="rowbtns">'+
+          '<label class="fld inline"><span>Stage</span><select data-s="'+r.id+'">'+
+          S.STAGES.map(function(st){return '<option'+(st===r.stage?" selected":"")+'>'+S.esc(st)+'</option>';}).join("")+'</select></label>'+
+          '<button class="btn ghost" data-q="'+r.id+'">'+(r.quote?"Re-quote":"Quote it")+'</button>'+
+          (r.quote&&!S.depositSatisfied(r)?'<button class="btn" data-d="'+r.id+'">Take the '+S.money(due)+' deposit</button>':'')+
+        '</div>'));
+    });
+  
+    host.appendChild(S.card('<h2>Why this replaces the DM</h2><div class="split2">'+
+      '<div><h3>What an artist gets asked in a DM</h3><ul class="crosses">'+
+      '<li>"how much for a sleeve"</li><li>"can I get a lion next tuesday"</li>'+
+      '<li>"do you do small stuff"</li><li>a screenshot with no size, no placement, no budget</li></ul></div>'+
+      '<div><h3>What arrives here instead</h3><ul class="ticks">'+
+      '<li>Reference photos, attached</li><li>Placement on the body</li><li>Size in inches</li>'+
+      '<li>A budget the client has actually said out loud</li><li>Enough to say yes, no, or "here is the real number"</li></ul></div></div>'+
+      '<div class="note">The point is not to be difficult. It is that an artist cannot quote a piece they cannot see, and a client who answers four questions once gets an answer the same day instead of over a week.</div>'));
+  
+    Array.prototype.forEach.call(host.querySelectorAll("[data-s]"),function(sel){
+      sel.addEventListener("change",function(){
+        S.moveRequest(sel.getAttribute("data-s"),sel.value);
+        var r=S.requestById(sel.getAttribute("data-s"));
+        S.toast(r._blocked? ("Blocked — "+r._blocked) : ("Moved to "+r.stage+"."), r._blocked?"bad":"ok");
+        render(); }); });
+    Array.prototype.forEach.call(host.querySelectorAll("[data-q]"),function(b){
+      b.addEventListener("click",function(){ var r=S.requestById(b.getAttribute("data-q"));
+        var v=prompt("Quote for "+S.clientName(r.clientId)+" (their budget was "+S.money(r.budget)+")", r.quote||r.budget);
+        if(v===null) return; S.quoteRequest(r.id, parseFloat(v)||0);
+        S.toast("Quoted. Deposit of "+S.money(S.depositDue(parseFloat(v)||0))+" now holds the date.","ok"); render(); }); });
+    Array.prototype.forEach.call(host.querySelectorAll("[data-d]"),function(b){
+      b.addEventListener("click",function(){ S.takeDeposit(b.getAttribute("data-d"));
+        S.toast("Deposit taken — the slot is held and it credits the final price.","ok"); render(); }); });
+  }
+  render();
+  document.getElementById("add").addEventListener("click",function(){
+    var cs=S.db().clients;
+    var p=prompt("Which client?\n\n"+cs.map(function(c,i){return (i+1)+". "+c.name;}).join("\n")); if(!p) return;
+    var c=cs[parseInt(p,10)-1]||cs.filter(function(x){return x.name.toLowerCase().indexOf(String(p).toLowerCase())>=0;})[0];
+    if(!c) return S.toast("No client matched.","bad");
+    var as=S.db().artists;
+    var ap=prompt("Which artist?\n\n"+as.map(function(a,i){return (i+1)+". "+a.name+" — "+a.styles.join(", ");}).join("\n"));
+    var a=as[parseInt(ap,10)-1]||as[0];
+    S.addRequest({clientId:c.id, artistId:a.id,
+      style:prompt("Style","American traditional")||"American traditional",
+      placement:prompt("Placement","Outer forearm")||"Outer forearm",
+      sizeIn:parseFloat(prompt("Size in inches","5")||"0"),
+      budget:parseFloat(prompt("Their budget","500")||"0"),
+      refs:parseInt(prompt("How many reference photos?","3")||"0",10),
+      desc:prompt("What do they want?")||""});
+    S.toast("Logged. It is in the queue for review.","ok"); render();
+  });
+})();
+</script>
+</body>
+</html>

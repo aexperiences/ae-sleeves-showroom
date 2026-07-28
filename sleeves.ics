@@ -1,0 +1,141 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Accelerated Experiences LLC//Sleeves OS//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Ravenwood Tattoo Collective — the chairs
+X-WR-CALDESC:Every session in the studio. Touch-ups are marked no charge.
+X-WR-TIMEZONE:America/Los_Angeles
+REFRESH-INTERVAL;VALUE=DURATION:PT1H
+X-PUBLISHED-TTL:PT1H
+BEGIN:VEVENT
+UID:s1@sleeves.aexperiences.com
+DTSTAMP:20260727T120000Z
+DTSTART;TZID=America/Los_Angeles:20260721T130000
+DTEND;TZID=America/Los_Angeles:20260721T190000
+SUMMARY:Odalys Ferrer — Dez Okonkwo
+LOCATION:Ravenwood Tattoo Collective\, Coeur d'Alene\, ID
+DESCRIPTION:Continuation · Complete\nArtist: Dez Okonkwo
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:s2@sleeves.aexperiences.com
+DTSTAMP:20260727T120000Z
+DTSTART;TZID=America/Los_Angeles:20260722T120000
+DTEND;TZID=America/Los_Angeles:20260722T150000
+SUMMARY:Tegan Moreau — Mira Halloway
+LOCATION:Ravenwood Tattoo Collective\, Coeur d'Alene\, ID
+DESCRIPTION:Single sitting · Complete\nArtist: Mira Halloway
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:s3@sleeves.aexperiences.com
+DTSTAMP:20260727T120000Z
+DTSTART;TZID=America/Los_Angeles:20260723T150000
+DTEND;TZID=America/Los_Angeles:20260723T170000
+SUMMARY:Marguerite Loeb — Saoirse Bell
+LOCATION:Ravenwood Tattoo Collective\, Coeur d'Alene\, ID
+DESCRIPTION:Single sitting · Complete\nArtist: Saoirse Bell
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:s4@sleeves.aexperiences.com
+DTSTAMP:20260727T120000Z
+DTSTART;TZID=America/Los_Angeles:20260724T120000
+DTEND;TZID=America/Los_Angeles:20260724T130000
+SUMMARY:Tegan Moreau — Mira Halloway (touch-up, no charge)
+LOCATION:Ravenwood Tattoo Collective\, Coeur d'Alene\, ID
+DESCRIPTION:Touch-up · Complete\nArtist: Mira Halloway
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:s5@sleeves.aexperiences.com
+DTSTAMP:20260727T120000Z
+DTSTART;TZID=America/Los_Angeles:20260727T130000
+DTEND;TZID=America/Los_Angeles:20260727T190000
+SUMMARY:Odalys Ferrer — Dez Okonkwo
+LOCATION:Ravenwood Tattoo Collective\, Coeur d'Alene\, ID
+DESCRIPTION:Continuation · Booked\nArtist: Dez Okonkwo
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:s6@sleeves.aexperiences.com
+DTSTAMP:20260727T120000Z
+DTSTART;TZID=America/Los_Angeles:20260728T140000
+DTEND;TZID=America/Los_Angeles:20260728T170000
+SUMMARY:Jonah Pike — Mira Halloway
+LOCATION:Ravenwood Tattoo Collective\, Coeur d'Alene\, ID
+DESCRIPTION:First session · Booked\nArtist: Mira Halloway
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:s7@sleeves.aexperiences.com
+DTSTAMP:20260727T120000Z
+DTSTART;TZID=America/Los_Angeles:20260729T120000
+DTEND;TZID=America/Los_Angeles:20260729T130000
+SUMMARY:Ines Vartanian — Ruben Castellanos
+LOCATION:Ravenwood Tattoo Collective\, Coeur d'Alene\, ID
+DESCRIPTION:Consultation · Booked\nArtist: Ruben Castellanos
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:s8@sleeves.aexperiences.com
+DTSTAMP:20260727T120000Z
+DTSTART;TZID=America/Los_Angeles:20260730T130000
+DTEND;TZID=America/Los_Angeles:20260730T170000
+SUMMARY:Kit Sandoval — Wren Ashby
+LOCATION:Ravenwood Tattoo Collective\, Coeur d'Alene\, ID
+DESCRIPTION:Single sitting · Booked\nArtist: Wren Ashby
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:s9@sleeves.aexperiences.com
+DTSTAMP:20260727T120000Z
+DTSTART;TZID=America/Los_Angeles:20260731T120000
+DTEND;TZID=America/Los_Angeles:20260731T150000
+SUMMARY:Marguerite Loeb — Mira Halloway
+LOCATION:Ravenwood Tattoo Collective\, Coeur d'Alene\, ID
+DESCRIPTION:Single sitting · Booked\nArtist: Mira Halloway
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:s10@sleeves.aexperiences.com
+DTSTAMP:20260727T120000Z
+DTSTART;TZID=America/Los_Angeles:20260729T150000
+DTEND;TZID=America/Los_Angeles:20260729T170000
+SUMMARY:Brody Lachance — Saoirse Bell
+LOCATION:Ravenwood Tattoo Collective\, Coeur d'Alene\, ID
+DESCRIPTION:Single sitting · Booked\nArtist: Saoirse Bell
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:s11@sleeves.aexperiences.com
+DTSTAMP:20260727T120000Z
+DTSTART;TZID=America/Los_Angeles:20260801T140000
+DTEND;TZID=America/Los_Angeles:20260801T160000
+SUMMARY:Jonah Pike — Saoirse Bell
+LOCATION:Ravenwood Tattoo Collective\, Coeur d'Alene\, ID
+DESCRIPTION:Single sitting · Booked\nArtist: Saoirse Bell
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:s12@sleeves.aexperiences.com
+DTSTAMP:20260727T120000Z
+DTSTART;TZID=America/Los_Angeles:20260731T160000
+DTEND;TZID=America/Los_Angeles:20260731T200000
+SUMMARY:Tegan Moreau — Ruben Castellanos
+LOCATION:Ravenwood Tattoo Collective\, Coeur d'Alene\, ID
+DESCRIPTION:Single sitting · Booked\nArtist: Ruben Castellanos
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:s13@sleeves.aexperiences.com
+DTSTAMP:20260727T120000Z
+DTSTART;TZID=America/Los_Angeles:20260801T120000
+DTEND;TZID=America/Los_Angeles:20260801T130000
+SUMMARY:Odalys Ferrer — Dez Okonkwo (touch-up, no charge)
+LOCATION:Ravenwood Tattoo Collective\, Coeur d'Alene\, ID
+DESCRIPTION:Touch-up · Booked\nArtist: Dez Okonkwo
+STATUS:CONFIRMED
+END:VEVENT
+END:VCALENDAR

@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Client Portal · Sleeves OS</title>
+<meta name="description" content="Where the client sees their quote, their deposit, their date and their aftercare.">
+<link rel="canonical" href="https://www.aexperiences.com/apps/sleeves/portal.html">
+<meta property="og:title" content="Client Portal · Sleeves OS">
+<meta property="og:description" content="Where the client sees their quote, their deposit, their date and their aftercare.">
+<meta property="og:image" content="https://www.aexperiences.com/Sleeves_OS.png">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="https://www.aexperiences.com/Sleeves_OS.png">
+<link rel="apple-touch-icon" href="https://www.aexperiences.com/Sleeves_OS.png">
+<meta name="theme-color" content="#b8324a">
+<link rel="stylesheet" href="sleeves.css">
+</head>
+<body>
+<script src="sleeves.js"></script>
+<script src="manual.js"></script>
+<script>
+(function(){
+  var S = window.Sleeves;
+  var content = S.mount({ active:"portal.html", crumb:"Client Portal" });
+  content.appendChild(S.page("Client portal",
+    "Most messages to a studio are one of four questions: did you see my request, what will it cost, when am I in, and how do I look after it.",""));
+  var host=document.createElement("div"); content.appendChild(host);
+  var sel=S.db().clients[0]?S.db().clients[0].id:null;
+  function render(){
+    host.innerHTML="";
+    host.appendChild(S.card('<h2>Preview</h2><label class="fld inline"><span>As</span><select id="pick">'+
+      S.db().clients.map(function(c){return '<option value="'+c.id+'"'+(c.id===sel?" selected":"")+'>'+S.esc(c.name)+'</option>';}).join("")+
+      '</select></label>'));
+    var c=S.clientById(sel); if(!c) return wire();
+    var reqs=S.db().requests.filter(function(r){return r.clientId===c.id;});
+    var ses=S.db().sessions.filter(function(s){return s.clientId===c.id;}).sort(function(a,b){return a.date<b.date?-1:1;});
+    host.appendChild(S.card('<div class="portal"><div class="cardhead"><h2>'+S.esc(c.name)+'</h2>'+
+      (c.idOnFile?S.tag("ID on file","good"):S.tag("bring photo ID","watch"))+'</div>'+
+      '<p class="sub">What the client sees. No artist rates, no shop cut, no internal notes.</p>'+
+      '<h3>Your requests</h3><div class="tablewrap"><table><thead><tr><th>What</th><th>Artist</th><th>Where it is</th><th class="right">Quote</th><th class="right">Deposit</th></tr></thead><tbody>'+
+      (reqs.length?reqs.map(function(r){
+        var due=r.quote?S.depositDue(r.quote):0;
+        return '<tr><td><b>'+S.esc(r.style)+'</b><div class="muted small">'+S.esc(r.placement)+' · '+S.esc(r.desc)+'</div></td>'+
+          '<td>'+S.esc(S.artistName(r.artistId))+'</td><td>'+S.tag(r.stage,S.stageBand(r.stage))+'</td>'+
+          '<td class="right mono">'+(r.quote?S.money(r.quote):'<i class="muted">being reviewed</i>')+'</td>'+
+          '<td class="right mono">'+(r.quote?(S.depositSatisfied(r)?S.money(S.depositHeld(r))+' held':S.money(due)+' due'):'—')+'</td></tr>';
+      }).join(""):'<tr><td colspan="5" class="muted">No requests yet.</td></tr>')+'</tbody></table></div>'+
+      '<h3 style="margin-top:20px">Your appointments</h3><div class="tablewrap"><table><tbody>'+
+      (ses.length?ses.map(function(s){
+        return '<tr><td class="mono">'+S.dayLabel(s.date)+'</td><td class="mono">'+S.hhmm(s.start)+' · '+s.hours+'h</td>'+
+          '<td>'+S.esc(s.type)+(s.touchUp?' '+S.tag("no charge","good"):'')+'</td>'+
+          '<td>'+S.esc(S.artistName(s.artistId))+'</td>'+
+          '<td class="right mono">'+(s.touchUp?'<span class="muted">no charge</span>':
+            s.price?S.money(s.price)+(s.depositApplied?' <span class="muted small">('+S.money(s.depositApplied)+' held)</span>':''):'—')+'</td>'+
+          '<td>'+(s.status==="Complete"?S.tag("done","good"):S.tag(s.status,""))+'</td></tr>';
+      }).join(""):'<tr><td class="muted">Nothing booked.</td></tr>')+'</tbody></table></div>'+
+      '<h3 style="margin-top:20px">Aftercare</h3>'+
+      '<ul class="ticks"><li>Leave the wrap on as long as the artist told you — not longer, not shorter.</li>'+
+      '<li>Wash gently with clean hands and unscented soap. Pat dry. Do not scrub.</li>'+
+      '<li>Thin layer of aftercare, two or three times a day. More is not better.</li>'+
+      '<li>No swimming, no soaking, no sun while it is healing.</li>'+
+      '<li>It will flake and itch. Do not pick it. Picking is the single most common cause of a patchy healed result.</li>'+
+      '<li>Free touch-up within '+S.RATES.touchUpDays+' days where the artist judges it warranted — sun, picking and neglect are not covered.</li></ul>'+
+      '<p class="muted small">Aftercare is given in writing at the session and acknowledged, because "I did not know" is the most expensive sentence in this trade.</p>'+
+      '</div>'));
+    wire();
+  }
+  function wire(){ var p=host.querySelector("#pick"); if(p) p.addEventListener("change",function(){ sel=p.value; render(); }); }
+  render();
+})();
+</script>
+</body>
+</html>

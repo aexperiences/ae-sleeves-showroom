@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Money & Booth Rent · Sleeves OS</title>
+<meta name="description" content="Every session split at the chair, deposits credited, and the touch-up cost nobody measures.">
+<link rel="canonical" href="https://www.aexperiences.com/apps/sleeves/money.html">
+<meta property="og:title" content="Money & Booth Rent · Sleeves OS">
+<meta property="og:description" content="Every session split at the chair, deposits credited, and the touch-up cost nobody measures.">
+<meta property="og:image" content="https://www.aexperiences.com/Sleeves_OS.png">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="https://www.aexperiences.com/Sleeves_OS.png">
+<link rel="apple-touch-icon" href="https://www.aexperiences.com/Sleeves_OS.png">
+<meta name="theme-color" content="#b8324a">
+<link rel="stylesheet" href="sleeves.css">
+</head>
+<body>
+<script src="sleeves.js"></script>
+<script src="manual.js"></script>
+<script>
+(function(){
+  var S = window.Sleeves;
+  var content = S.mount({ active:"money.html", crumb:"Money & Booth Rent" });
+  var wk=S.thisWeek();
+  content.appendChild(S.page("Money & booth rent",
+    "The split happens at the chair, on every session. Week of "+S.dayLabel(wk)+".",""));
+  
+  content.appendChild(S.card('<div class="stats">'+
+    S.stat("On the books",S.money(S.weekRevenue(wk)),S.sessionsInWeek(wk).length+" sessions","good")+
+    S.stat("Shop's cut",S.money(S.weekShopCut(wk)),"Booth rent across every chair")+
+    S.stat("Supplies",S.money(S.weekSupplies(wk)),S.money2(S.RATES.suppliesPerHour)+"/hr the shop provides")+
+    S.stat("Shop net",S.money(S.weekShopNet(wk)),"The cut, less what it cost to provide the station",S.weekShopNet(wk)>0?"good":"bad")+
+    S.stat("Touch-ups",S.money(S.touchUpCost(wk)),S.touchUps(wk).length+" free session(s) · "+S.touchUpHours(wk).toFixed(1)+" chair hours",S.touchUps(wk).length?"watch":"good")+'</div>'));
+  
+  /* one session, fully split */
+  var sample=S.sessionsInWeek(wk).filter(function(s){return s.price>0 && !S.artistById(s.artistId).owner;})[0]
+          || S.sessionsInWeek(wk).filter(function(s){return s.price>0;})[0];
+  if(sample){ var m=S.moneyFor(sample), a=S.artistById(sample.artistId);
+    content.appendChild(S.card('<h2>One session, split three ways</h2>'+
+      '<p class="sub">'+S.esc(S.clientName(sample.clientId))+' · '+S.dayLabel(sample.date)+' · '+
+      S.esc(S.artistName(sample.artistId))+'. Every session is computed exactly this way.</p>'+
+      '<div class="split2"><div><h3>The session</h3><table class="kv"><tbody>'+
+        '<tr><th>Price</th><td class="mono">'+S.money2(m.price)+'</td></tr>'+
+        '<tr><th>Deposit already taken</th><td class="mono">'+S.money2(m.depositApplied)+
+          (m.depositApplied?' <span class="muted small">credited, not extra</span>':'')+'</td></tr>'+
+        '<tr class="tot"><th>Balance on the day</th><td class="mono"><b>'+S.money2(m.balanceDue)+'</b></td></tr>'+
+      '</tbody></table></div>'+
+      '<div><h3>Who gets what</h3><table class="kv"><tbody>'+
+        '<tr><th>Shop cut ('+S.pct(m.cutPct*100)+')</th><td class="mono">'+S.money2(m.shopCut)+'</td></tr>'+
+        '<tr><th>Artist keeps</th><td class="mono">'+S.money2(m.artistNet)+'</td></tr>'+
+        '<tr><th>Supplies the shop provided</th><td class="mono">−'+S.money2(m.supplies)+
+          ' <span class="muted small">('+sample.hours+'h × '+S.money2(S.RATES.suppliesPerHour)+')</span></td></tr>'+
+        '<tr class="tot"><th>Shop actually nets</th><td class="mono"><b>'+S.money2(m.shopNet)+'</b></td></tr>'+
+      '</tbody></table></div></div>'+
+      '<div class="note">The shop\'s cut is not the shop\'s profit. Needles, ink, cartridges and barriers come out of it. '+
+      'A studio that reads its booth rent as income and never nets the supplies is overstating what it makes on every chair.</div>'));
+  }
+  
+  /* by artist */
+  content.appendChild(S.card('<h2>Every session this week</h2><div class="tablewrap"><table><thead><tr>'+
+    '<th>When</th><th>Client</th><th>Artist</th><th>Type</th><th class="right">Price</th>'+
+    '<th class="right">Deposit</th><th class="right">Balance</th><th class="right">Shop cut</th><th class="right">Artist</th></tr></thead><tbody>'+
+    S.sessionsInWeek(wk).sort(function(a,b){return a.date<b.date?-1:1;}).map(function(s){
+      var m=S.moneyFor(s);
+      return '<tr'+(s.touchUp?' class="row-warn"':'')+'><td class="mono">'+S.dayLabel(s.date)+'</td>'+
+        '<td>'+S.esc(S.clientName(s.clientId))+'</td><td>'+S.esc(S.artistName(s.artistId))+'</td>'+
+        '<td>'+S.esc(s.type)+(s.touchUp?' '+S.tag("free","watch"):'')+'</td>'+
+        '<td class="right mono">'+(m.price?S.money2(m.price):'—')+'</td>'+
+        '<td class="right mono">'+(m.depositApplied?S.money2(m.depositApplied):'—')+'</td>'+
+        '<td class="right mono">'+(m.balanceDue?S.money2(m.balanceDue):'—')+'</td>'+
+        '<td class="right mono">'+(m.shopCut?S.money2(m.shopCut):'—')+'</td>'+
+        '<td class="right mono">'+(m.artistNet?S.money2(m.artistNet):'—')+'</td></tr>';
+    }).join("")+'</tbody></table></div>'));
+  
+  /* touch-ups */
+  var tu=S.touchUps(wk);
+  content.appendChild(S.card('<h2>Touch-ups — free to them, not to you</h2>'+
+    '<p class="sub">A complimentary touch-up inside the '+S.RATES.touchUpDays+'-day window is a chair for an hour and a full set of supplies, billed to nobody. It is the tattoo equivalent of a warranty callback.</p>'+
+    (tu.length?'<div class="tablewrap"><table><thead><tr><th>When</th><th>Client</th><th>Artist</th><th class="right">Chair hours</th><th class="right">Supplies</th></tr></thead><tbody>'+
+      tu.map(function(s){ var m=S.moneyFor(s);
+        return '<tr><td class="mono">'+S.dayLabel(s.date)+'</td><td>'+S.esc(S.clientName(s.clientId))+'</td>'+
+          '<td>'+S.esc(S.artistName(s.artistId))+'</td><td class="right mono">'+s.hours+'</td>'+
+          '<td class="right mono">'+S.money2(m.supplies)+'</td></tr>'; }).join("")+
+      '<tr class="tot"><td colspan="3"><b>Total</b></td><td class="right mono"><b>'+S.touchUpHours(wk).toFixed(1)+'</b></td>'+
+      '<td class="right mono"><b>'+S.money2(S.touchUpCost(wk))+'</b></td></tr></tbody></table></div>'
+     :'<p class="muted">None this week.</p>')+
+    S.srcNote("Rates are this studio's own draft policy: shop minimum "+S.money(S.RATES.minimumCharge)+
+      ", supplies "+S.money2(S.RATES.suppliesPerHour)+"/hr, deposit the greater of "+S.money(S.RATES.depositMin)+
+      " or "+S.pct(S.RATES.depositPctOfQuote*100)+" of the quote, touch-up window "+S.RATES.touchUpDays+" days. Not tax advice.")+
+    '<div class="note">Taking deposits and payments needs a licensed processor. This room computes and authorises; the processor moves the money.</div>'));
+})();
+</script>
+</body>
+</html>

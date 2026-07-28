@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sign a document · Sleeves OS</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="https://www.aexperiences.com/Sleeves_OS.png">
+<meta name="theme-color" content="#b8324a">
+<link rel="stylesheet" href="sleeves.css">
+<style>
+  body{background:var(--paper)}
+  .sheet{max-width:760px;margin:0 auto;padding:22px 16px 80px}
+  .sbrand{display:flex;align-items:center;gap:11px;padding:16px 0 18px}
+  .sbrand img{width:40px;height:40px;border-radius:10px;display:block}
+  .sbrand b{font-size:16px;color:var(--ink)}
+  .sbrand span{display:block;font-size:12px;color:var(--mut)}
+  .doc{background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);padding:24px 26px;box-shadow:var(--sh)}
+  .doc h1{font-size:21px;margin:0 0 4px;color:var(--ink)}
+  .doc .meta{font-size:13px;color:var(--mut);margin-bottom:18px}
+  .doc p.cl{font-size:14px;line-height:1.7;color:var(--ink-2);margin:0 0 13px;padding-left:14px;border-left:2px solid var(--line)}
+  .sigbox{border:2px dashed var(--line);border-radius:12px;background:#fff;touch-action:none;width:100%;height:170px;display:block}
+  .tabs{display:flex;gap:8px;margin:14px 0 10px}
+  .tabs button{flex:1;padding:9px;border:1px solid var(--line);background:var(--card);border-radius:9px;cursor:pointer;font:inherit;color:var(--ink-2)}
+  .tabs button.on{background:var(--tang);border-color:var(--tang);color:#fff}
+  .typed{font-family:"Snell Roundhand","Apple Chancery","Segoe Script",cursive;font-size:40px;padding:36px 14px;text-align:center;color:var(--ink)}
+  .consent{background:var(--sunk);border-radius:11px;padding:14px 16px;font-size:12.5px;line-height:1.6;color:var(--ink-2);margin:16px 0}
+  .done{text-align:center;padding:40px 20px}
+  .done .big{font-size:44px;color:var(--good)}
+</style>
+</head>
+<body>
+<div class="sheet">
+  <div class="sbrand"><img src="https://www.aexperiences.com/Sleeves_OS.png" alt=""><div><b id="agName">Sleeves OS</b><span>Secure document signing</span></div></div>
+  <div id="root" class="doc">Loading…</div>
+  <div class="ae-credit" style="margin-top:22px">Powered by <b>Accelerated Experiences LLC</b>. This signing page needs no account and no app.</div>
+</div>
+<script src="sleeves.js"></script>
+<script>
+(function(){
+  var S = window.Sleeves, root = document.getElementById("root");
+  var token = new URLSearchParams(location.search).get("d");
+  document.getElementById("agName").textContent = S.db().shop.name;
+
+  var doc = token ? S.openDoc(token) : null;
+  if (!doc) {
+    root.innerHTML = '<h1>This link is not valid</h1><p class="cl">The document may have been withdrawn, or the link was ' +
+      'copied incompletely. Contact the office and they can send a fresh one.</p>';
+    return;
+  }
+  var tpl = S.templateById(doc.tpl), ctx = S.docContext(doc);
+
+  if (doc.status === "Signed") return renderDone();
+
+  var mode = "draw", canvas, ctxD, drawn = false;
+
+  function renderDone(){
+    root.innerHTML = '<div class="done"><div class="big">✓</div><h1>Signed</h1>' +
+      '<p class="cl" style="border:0;padding:0">Thank you. <b>' + S.esc(doc.title) + '</b> was signed on ' +
+      S.esc(String(doc.signedTs||"").replace("T"," ")) + ' and is now on file with ' + S.esc(S.db().shop.name) + '.</p>' +
+      '<p class="cl" style="border:0;padding:0;font-size:13px;color:var(--mut)">You may request a copy at any time.</p></div>';
+  }
+
+  function render(){
+    root.innerHTML =
+      '<h1>' + S.esc(tpl.title) + '</h1>' +
+      '<div class="meta">' + S.esc(S.db().shop.name) + ' · for ' + S.esc(doc.subject) + ' · reference ' + S.esc(doc.token) + '</div>' +
+      tpl.body.map(function(b){ return '<p class="cl">' + S.esc(S.fillTemplate(b, ctx)) + '</p>'; }).join("") +
+      '<h3 style="margin-top:22px">Your details</h3>' +
+      tpl.fields.filter(function(f){ return f.type !== "signature"; }).map(function(f){
+        if (f.type === "check") return '<label class="chk"><input type="checkbox" id="f_' + f.k + '"' +
+          (f.required ? " data-req=1" : "") + '> ' + S.esc(f.label) + '</label>';
+        return '<label class="fld"><span>' + S.esc(f.label) + (f.required ? ' *' : '') + '</span>' +
+          '<input id="f_' + f.k + '" type="' + (f.type === "date" ? "date" : "text") + '"' +
+          (f.type === "date" ? ' value="' + S.iso(new Date()) + '"' : '') +
+          (f.required ? " data-req=1" : "") + '></label>';
+      }).join("") +
+      '<h3 style="margin-top:22px">Your signature</h3>' +
+      '<div class="tabs"><button id="tDraw" class="on">Draw it</button><button id="tType">Type it</button></div>' +
+      '<canvas id="sig" class="sigbox"></canvas>' +
+      '<div id="typedWrap" style="display:none"><input id="typedName" class="typed" placeholder="Type your full name" style="width:100%;border:2px dashed var(--line);border-radius:12px;background:#fff"></div>' +
+      '<div style="margin-top:8px"><button class="btn ghost" id="clearSig">Clear</button></div>' +
+      '<div class="consent">' + S.esc(S.fillTemplate(S.ESIGN_CONSENT, ctx)) + '</div>' +
+      '<div id="signErr" class="signerr" role="alert" style="display:none"></div>' +
+      '<button class="btn" id="adopt" style="width:100%;padding:14px;font-size:15px">Adopt and sign</button>';
+
+    canvas = document.getElementById("sig");
+    var rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width * 2; canvas.height = 170 * 2;
+    ctxD = canvas.getContext("2d"); ctxD.scale(2,2);
+    ctxD.lineWidth = 2.2; ctxD.lineCap = "round"; ctxD.lineJoin = "round"; ctxD.strokeStyle = "#22302e";
+    var down = false, last = null;
+    function pos(e){ var r = canvas.getBoundingClientRect(); var t = e.touches ? e.touches[0] : e;
+      return { x:t.clientX - r.left, y:t.clientY - r.top }; }
+    function start(e){ down = true; last = pos(e); drawn = true; e.preventDefault(); }
+    function move(e){ if (!down) return; var p = pos(e);
+      ctxD.beginPath(); ctxD.moveTo(last.x,last.y); ctxD.lineTo(p.x,p.y); ctxD.stroke(); last = p; e.preventDefault(); }
+    function end(){ down = false; }
+    ["mousedown","touchstart"].forEach(function(t){ canvas.addEventListener(t, start, {passive:false}); });
+    ["mousemove","touchmove"].forEach(function(t){ canvas.addEventListener(t, move, {passive:false}); });
+    ["mouseup","mouseleave","touchend"].forEach(function(t){ canvas.addEventListener(t, end); });
+
+    document.getElementById("clearSig").addEventListener("click", function(){
+      ctxD.clearRect(0,0,canvas.width,canvas.height); drawn = false;
+      document.getElementById("typedName").value = "";
+    });
+    document.getElementById("tDraw").addEventListener("click", function(){
+      mode = "draw"; this.classList.add("on"); document.getElementById("tType").classList.remove("on");
+      canvas.style.display = "block"; document.getElementById("typedWrap").style.display = "none";
+    });
+    document.getElementById("tType").addEventListener("click", function(){
+      mode = "type"; this.classList.add("on"); document.getElementById("tDraw").classList.remove("on");
+      canvas.style.display = "none"; document.getElementById("typedWrap").style.display = "block";
+    });
+
+    document.getElementById("adopt").addEventListener("click", function(){
+      var vals = {}, missing = [];
+      tpl.fields.filter(function(f){ return f.type !== "signature"; }).forEach(function(f){
+        var elx = document.getElementById("f_" + f.k);
+        var v = f.type === "check" ? elx.checked : elx.value.trim();
+        if (f.required && !v) missing.push(f.label);
+        vals[f.k] = v;
+      });
+      var typed = document.getElementById("typedName").value.trim();
+      if (mode === "draw" && !drawn) missing.push("Your signature");
+      if (mode === "type" && !typed) missing.push("Your typed signature");
+      var errBox = document.getElementById("signErr");
+      if (missing.length) {
+        /* Never alert() on a signing page. A modal dialog blocks the renderer,
+           is suppressed outright in some embedded browsers, and gives the signer
+           no way to see WHICH field they missed while they are fixing it. */
+        errBox.innerHTML = "<b>Still needed before you can sign:</b><ul><li>" +
+          missing.map(function(m){ return S.esc(m); }).join("</li><li>") + "</li></ul>";
+        errBox.style.display = "block";
+        errBox.scrollIntoView({ behavior:"smooth", block:"center" });
+        return;
+      }
+      errBox.style.display = "none";
+      var sig = mode === "draw" ? canvas.toDataURL("image/png") : ("typed:" + typed);
+      if (mode === "type" && !vals.name) vals.name = typed;
+      S.signDoc(doc.token, vals, sig, { agent: navigator.userAgent.slice(0,80) });
+      doc = S.docByToken(doc.token);
+      renderDone(); window.scrollTo(0,0);
+    });
+  }
+  render();
+})();
+</script>
+</body>
+</html>

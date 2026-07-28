@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Books & Metrics · Sleeves OS</title>
+<meta name="description" content="Revenue by artist and by style, quote conversion, deposit exposure and touch-up rate — computed, never reconstructed.">
+<link rel="canonical" href="https://www.aexperiences.com/apps/sleeves/books.html">
+<meta property="og:title" content="Books & Metrics · Sleeves OS">
+<meta property="og:description" content="Revenue by artist and by style, quote conversion, deposit exposure and touch-up rate — computed, never reconstructed.">
+<meta property="og:image" content="https://www.aexperiences.com/Sleeves_OS.png">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="https://www.aexperiences.com/Sleeves_OS.png">
+<link rel="apple-touch-icon" href="https://www.aexperiences.com/Sleeves_OS.png">
+<meta name="theme-color" content="#b8324a">
+<link rel="stylesheet" href="sleeves.css">
+</head>
+<body>
+<script src="sleeves.js"></script>
+<script src="manual.js"></script>
+<script>
+(function(){
+  var S = window.Sleeves;
+  var content = S.mount({ active:"books.html", crumb:"Books & Metrics" });
+  var wk=S.thisWeek();
+  content.appendChild(S.page("Books & metrics","Revenue says how busy the chairs were. This says whether the studio made anything.",""));
+  content.appendChild(S.card('<h2>The scoreboard</h2><div class="stats">'+
+    S.kpis().map(function(k){return S.stat(k.k,k.v,k.n,k.band);}).join("")+'</div>'));
+  
+  function tbl(title,sub,obj,colorFn,nameFn){
+    var keys=Object.keys(obj).sort(function(a,b){return obj[b]-obj[a];});
+    var max=keys.length?obj[keys[0]]:1;
+    return S.card('<h2>'+title+'</h2><p class="sub">'+sub+'</p><div class="tablewrap"><table><thead><tr>'+
+      '<th>Segment</th><th class="right">Booked</th><th>Share</th></tr></thead><tbody>'+
+      keys.map(function(k){
+        return '<tr><td>'+(colorFn?'<span class="dotc" style="background:'+colorFn(k)+'"></span>':'')+
+          '<b>'+S.esc(nameFn?nameFn(k):k)+'</b></td><td class="right mono">'+S.money(obj[k])+'</td>'+
+          '<td style="min-width:170px">'+S.bar(obj[k]/max*100,colorFn?colorFn(k):"var(--tang)")+'</td></tr>';
+      }).join("")+'</tbody></table></div>');
+  }
+  content.appendChild(tbl("By artist","Who is filling their chair.",S.revenueByArtist(wk),null,function(id){return S.artistName(id);}));
+  content.appendChild(tbl("By style","What this studio is actually known for — which is not always what it thinks.",
+    S.revenueByStyle(wk),S.styleColor,null));
+  
+  /* touch-ups by artist */
+  var tba=S.touchUpsByArtist();
+  content.appendChild(S.card('<h2>Touch-ups by artist</h2>'+
+    '<p class="sub">Not to punish anyone. A pattern usually means technique or aftercare instruction, and you cannot see either without the number.</p>'+
+    '<div class="tablewrap"><table><thead><tr><th>Artist</th><th class="right">Touch-ups</th><th class="right">Sessions done</th><th class="right">Rate</th><th>Relative</th></tr></thead><tbody>'+
+    S.db().artists.map(function(a){
+      var done=S.db().sessions.filter(function(s){return s.artistId===a.id&&s.status==="Complete"&&!s.touchUp;}).length;
+      var t=tba[a.id]||0, rate=done?(t/done)*100:0;
+      if(!done&&!t) return "";
+      return '<tr><td><b>'+S.esc(a.name)+'</b></td><td class="right mono '+(t?"warn":"")+'">'+t+'</td>'+
+        '<td class="right mono">'+done+'</td><td class="right mono">'+S.pct(rate)+'</td>'+
+        '<td style="min-width:140px">'+S.bar(rate*3,rate>20?"var(--bad)":"var(--good)")+'</td></tr>';
+    }).join("")+'</tbody></table></div>'));
+  
+  /* honest findings */
+  var f=[], unp=S.unprotectedSessions(wk);
+  if(unp.length) f.push("<b>"+S.money(S.exposedValue(wk))+"</b> is booked with no deposit behind it. Every one of those is a chair you cannot resell if they do not turn up.");
+  if(S.touchUps(wk).length) f.push("<b>"+S.money(S.touchUpCost(wk))+"</b> of chair time and supplies went out free this week as touch-ups. Free to the client is not free to the studio.");
+  if(S.needsReview().length) f.push("<b>"+S.needsReview().length+" request(s)</b> are still waiting on an artist to look. In this trade the client is messaging three shops, and the first real answer usually wins.");
+  if(S.cannotWork().length) f.push("<b>"+S.cannotWork().map(function(a){return a.name;}).join(", ")+"</b> cannot legally work until a credential is renewed — and has sessions on the books.");
+  var flashStale=S.flashAvailable().length;
+  if(flashStale) f.push("<b>"+flashStale+" flash design(s)</b> are still on the wall. Flash that never moves is drawing time already spent.");
+  if(S.weekShopNet(wk)<=0) f.push("The shop's cut did <b>not</b> cover the supplies it provided this week.");
+  content.appendChild(S.card('<h2>What the numbers are telling you</h2>'+
+    '<p class="sub">Read straight off your own book. Uncomfortable findings are shown, not smoothed.</p>'+
+    '<ul class="findings">'+f.map(function(x){return '<li>'+x+'</li>';}).join("")+'</ul>'));
+  
+  content.appendChild(S.card('<h2>Benchmarks</h2><div class="tablewrap"><table><thead><tr><th>Metric</th><th>Yours</th><th>Benchmark</th></tr></thead><tbody>'+
+    '<tr><td>Quote conversion</td><td class="mono">'+(S.quoteWinRate()==null?"—":S.pct(S.quoteWinRate()))+'</td><td class="muted">'+S.esc(S.BENCH.quoteWinPct.note)+'</td></tr>'+
+    '<tr><td>Deposit no-show rate</td><td class="mono">—</td><td class="muted">'+S.esc(S.BENCH.depositNoShowPct.note)+'</td></tr>'+
+    '<tr><td>Touch-up rate</td><td class="mono">—</td><td class="muted">'+S.esc(S.BENCH.touchUpPct.note)+'</td></tr>'+
+    '<tr><td>Rebook rate</td><td class="mono">—</td><td class="muted">'+S.esc(S.BENCH.rebookPct.note)+'</td></tr>'+
+    '</tbody></table></div>'+
+    S.srcNote("Benchmark cells are deliberately blank. No sourced tattoo-industry figure has been brought into this build, and an invented comparison is worse than none.")));
+  
+  content.appendChild(S.card('<h2>What this replaces</h2><div class="chips">'+
+    S.REPLACES.map(function(r){return '<span class="chip static">'+S.esc(r)+'</span>';}).join("")+'</div>'+
+    '<p class="muted small" style="margin-top:10px">Most of these are not products a studio pays for. They are a DM inbox, a paper clipboard and a memory — which is exactly why the leaks are invisible.</p>'));
+})();
+</script>
+</body>
+</html>

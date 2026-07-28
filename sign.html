@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>e-Sign · Sleeves OS</title>
+<meta name="description" content="Waivers, deposit agreements and booth contracts signed on a phone at the door, with a full audit trail.">
+<link rel="canonical" href="https://www.aexperiences.com/apps/sleeves/sign.html">
+<meta property="og:title" content="e-Sign · Sleeves OS">
+<meta property="og:description" content="Waivers, deposit agreements and booth contracts signed on a phone at the door, with a full audit trail.">
+<meta property="og:image" content="https://www.aexperiences.com/Sleeves_OS.png">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="https://www.aexperiences.com/Sleeves_OS.png">
+<link rel="apple-touch-icon" href="https://www.aexperiences.com/Sleeves_OS.png">
+<meta name="theme-color" content="#b8324a">
+<link rel="stylesheet" href="sleeves.css">
+</head>
+<body>
+<script src="sleeves.js"></script>
+<script src="manual.js"></script>
+<script>
+(function(){
+  var S = window.Sleeves;
+  var content = S.mount({ active:"sign.html", crumb:"e-Sign" });
+  content.appendChild(S.page("e-Sign","The waiver signed on a phone at the door. No account, no app, no clipboard.",
+    '<button class="btn" id="nd">+ New document</button>'));
+  var host=document.createElement("div"); content.appendChild(host);
+  function band(s){ return s==="Signed"?"good":s==="Draft"?"":"watch"; }
+  function render(){
+    host.innerHTML="";
+    var ds=S.db().documents;
+    host.appendChild(S.card('<div class="stats">'+
+      S.stat("Signed",ds.filter(function(d){return d.status==="Signed";}).length,"Frozen and filed","good")+
+      S.stat("Out for signature",S.docsAwaiting().length,"Sent or opened",S.docsAwaiting().length?"watch":"good")+
+      S.stat("Drafts",ds.filter(function(d){return d.status==="Draft";}).length,"Not yet released")+
+      S.stat("Templates",S.DOC_TEMPLATES.length,"Waiver, deposit, booth rental, aftercare")+'</div>'));
+    host.appendChild(S.card('<h2>Documents</h2><div class="tablewrap"><table><thead><tr>'+
+      '<th>Document</th><th>For</th><th>Signer</th><th>Status</th><th>Link</th><th></th></tr></thead><tbody>'+
+      (ds.length?ds.map(function(d){ return '<tr><td><b>'+S.esc(d.title)+'</b><div class="muted small mono">'+S.esc(d.created)+'</div></td>'+
+        '<td>'+S.esc(d.subject)+'</td><td>'+S.esc(d.signer.name||"—")+'<div class="muted small">'+S.esc(d.signer.role||"")+'</div></td>'+
+        '<td>'+S.tag(d.status,band(d.status))+'</td>'+
+        '<td>'+(d.status==="Draft"?'<i class="muted">not minted</i>':'<code class="tok">'+S.esc(d.token)+'</code>')+'</td>'+
+        '<td class="right rowbtns">'+(d.status==="Draft"?'<button class="btn" data-send="'+d.id+'">Mint the link</button>':'')+
+        (d.status!=="Draft"?'<a class="btn ghost" href="sign-doc.html?d='+encodeURIComponent(d.token)+'" target="_blank">Open as the signer</a>':'')+
+        '<button class="btn ghost" data-a="'+d.id+'">Audit trail</button></td></tr>'; }).join(""):
+        '<tr><td colspan="6" class="muted">No documents yet.</td></tr>')+'</tbody></table></div>'));
+    host.appendChild(S.card('<h2>How signing works here</h2><div class="split2">'+
+      '<div><h3>The four things the law turns on</h3><ul class="ticks">'+
+      '<li><b>Consent</b> — they agree to sign electronically, in plain language, first.</li>'+
+      '<li><b>Intent</b> — they adopt a signature deliberately.</li>'+
+      '<li><b>Attribution</b> — the link is unguessable and single-purpose; every action is stamped.</li>'+
+      '<li><b>Retention</b> — the record freezes on signature and files into Records.</li></ul></div>'+
+      '<div><h3>What it does not claim</h3><p>This captures all four. It is <b>not legal advice</b>, and tattoo consent is '+
+      'state-regulated — minimum age, parental consent rules and required disclosures differ. Have your attorney read the '+
+      'waiver language for your state before you rely on it.</p></div></div>'));
+    Array.prototype.forEach.call(host.querySelectorAll("[data-send]"),function(b){
+      b.addEventListener("click",function(){ S.sendDoc(b.getAttribute("data-send"));
+        S.toast("Link minted. Nothing sent — hand them the link or release it from the Approval Desk.","ok"); render(); }); });
+    Array.prototype.forEach.call(host.querySelectorAll("[data-a]"),function(b){
+      b.addEventListener("click",function(){ audit(b.getAttribute("data-a")); }); });
+  }
+  function audit(id){
+    var d=S.docById(id), w=document.createElement("div"); w.className="modal-scrim";
+    w.innerHTML='<div class="modal"><h2>Audit trail</h2><p class="sub">'+S.esc(d.title)+' · '+S.esc(d.subject)+' · '+S.esc(d.token)+'</p>'+
+      '<div class="tablewrap"><table><thead><tr><th>When</th><th>Who</th><th>What</th></tr></thead><tbody>'+
+      d.audit.map(function(a){ return '<tr><td class="mono small">'+S.esc(a.ts.replace("T"," "))+'</td><td>'+S.esc(a.who)+'</td><td>'+S.esc(a.what)+'</td></tr>'; }).join("")+
+      '</tbody></table></div>'+(d.status==="Signed"?'<div class="note good">Record frozen. It cannot be edited — only superseded.</div>':'')+
+      '<div class="rowbtns"><button class="btn ghost" id="cx">Close</button></div></div>';
+    document.body.appendChild(w); w.querySelector("#cx").addEventListener("click",function(){w.remove();});
+  }
+  document.getElementById("nd").addEventListener("click",function(){
+    var people=S.db().clients.map(function(c){return {id:c.id,name:c.name,who:"Client"};})
+      .concat(S.db().artists.map(function(a){return {id:a.id,name:a.name,who:"Artist"};}));
+    var w=document.createElement("div"); w.className="modal-scrim";
+    w.innerHTML='<div class="modal"><h2>New document</h2>'+
+      '<label class="fld"><span>Template</span><select id="tp">'+S.DOC_TEMPLATES.map(function(t){
+        return '<option value="'+t.id+'">'+S.esc(t.title)+' — '+S.esc(t.who)+'</option>';}).join("")+'</select></label>'+
+      '<label class="fld"><span>Who is it for?</span><select id="sb">'+people.map(function(p){
+        return '<option value="'+p.id+'">'+S.esc(p.name)+' ('+p.who+')</option>';}).join("")+'</select></label>'+
+      '<label class="fld"><span>Signer role</span><input id="rl" placeholder="e.g. Client"></label>'+
+      '<div class="rowbtns"><button class="btn" id="mk">Create the draft</button><button class="btn ghost" id="cx">Cancel</button></div></div>';
+    document.body.appendChild(w);
+    w.querySelector("#cx").addEventListener("click",function(){w.remove();});
+    w.querySelector("#mk").addEventListener("click",function(){
+      var sid=w.querySelector("#sb").value, p=people.filter(function(x){return x.id===sid;})[0];
+      S.createDoc(w.querySelector("#tp").value,p.name,sid,{name:p.name,role:w.querySelector("#rl").value||p.who,email:""});
+      w.remove(); S.toast("Draft created.","ok"); render(); });
+  });
+  render();
+})();
+</script>
+</body>
+</html>

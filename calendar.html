@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Calendar · Sleeves OS</title>
+<meta name="description" content="Every session, on a calendar you can subscribe to from your phone.">
+<link rel="canonical" href="https://www.aexperiences.com/apps/sleeves/calendar.html">
+<meta property="og:title" content="Calendar · Sleeves OS">
+<meta property="og:description" content="Every session, on a calendar you can subscribe to from your phone.">
+<meta property="og:image" content="https://www.aexperiences.com/Sleeves_OS.png">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="https://www.aexperiences.com/Sleeves_OS.png">
+<link rel="apple-touch-icon" href="https://www.aexperiences.com/Sleeves_OS.png">
+<meta name="theme-color" content="#b8324a">
+<link rel="stylesheet" href="sleeves.css">
+</head>
+<body>
+<script src="sleeves.js"></script>
+<script src="manual.js"></script>
+<script>
+(function(){
+  var S = window.Sleeves;
+  var content = S.mount({ active:"calendar.html", crumb:"Calendar" });
+  content.appendChild(S.page("Calendar","Every session in the studio. Subscribe once and it keeps itself current.",
+    '<a class="btn" href="sleeves.ics" download>Subscribe to the feed</a>'));
+  var host=document.createElement("div"); content.appendChild(host); var off=0;
+  function render(){
+    host.innerHTML="";
+    var start=S.addDays(new Date(S.thisWeek()+"T12:00:00"),off*7), wk=S.iso(start), dd=[];
+    for(var i=0;i<7;i++) dd.push(S.iso(S.addDays(start,i)));
+    host.appendChild(S.card('<div class="cardhead"><h2>Week of '+S.dayLabel(wk)+'</h2>'+
+      '<div class="rowbtns"><button class="btn ghost" id="p">‹ Previous</button>'+
+      '<button class="btn ghost" id="t">This week</button><button class="btn ghost" id="n">Next ›</button></div></div>'+
+      '<div class="cal">'+dd.map(function(d){
+        var rows=S.db().sessions.filter(function(s){return s.date===d;}).sort(function(a,b){return a.start<b.start?-1:1;});
+        return '<div class="cal-day'+(d===S.iso(S.TODAY)?" today":"")+'"><div class="cal-h">'+S.dayLabel(d)+'</div>'+
+          (rows.length?rows.map(function(s){
+            return '<div class="cal-e" style="border-left-color:'+(s.touchUp?"var(--watch)":"var(--tang)")+'">'+
+              '<div class="ce-t mono">'+S.hhmm(s.start)+' · '+s.hours+'h</div>'+
+              '<div class="ce-c">'+S.esc(S.clientName(s.clientId))+'</div>'+
+              '<div class="ce-g">'+S.esc(S.artistName(s.artistId).split(" ")[0])+' · '+S.esc(s.type)+'</div></div>';
+          }).join(""):'<div class="cal-none">—</div>')+'</div>';
+      }).join("")+'</div>'));
+    host.appendChild(S.card('<h2>Put it on your phone</h2><div class="split2">'+
+      '<div><h3>iPhone / iPad</h3><ol class="steps"><li>Settings → Calendar → Accounts → Add Account → Other</li>'+
+      '<li>Add Subscribed Calendar</li><li>Paste the feed address</li></ol></div>'+
+      '<div><h3>Google Calendar</h3><ol class="steps"><li>Open Google Calendar on a computer</li>'+
+      '<li>Other calendars → + → From URL</li><li>Paste the feed address</li></ol></div></div>'+
+      '<p class="muted small">Subscribing is not downloading. A subscribed calendar refreshes itself.</p>'));
+    host.querySelector("#p").addEventListener("click",function(){off--;render();});
+    host.querySelector("#n").addEventListener("click",function(){off++;render();});
+    host.querySelector("#t").addEventListener("click",function(){off=0;render();});
+  }
+  render();
+})();
+</script>
+</body>
+</html>
