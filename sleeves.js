@@ -802,15 +802,15 @@
       why:"The AI department chains, the event bus and the confidence gates." }
   };
   var TIERS = {
-    chair: { key:"chair", name:"Chair", rank:1, mo:250, build:2400,
+    chair: { key:"chair", name:"Chair", rank:1, mo:250, build:1500,
       desc:"A single artist. The whole system, sized for someone who is both the artist and the front desk.",
       base:"1 artist · the full spine",
       includes:["requests","booking","flash","consent","artists","money","portal","sign"] },
-    studio: { key:"studio", name:"Studio", rank:2, mo:650, build:5600,
+    studio: { key:"studio", name:"Studio", rank:2, mo:650, build:3100,
       desc:"A real shop with a front desk and booth renters. Adds books & metrics and the AI department org.",
       base:"Unlimited artists · booth-rent accounting · agent org",
       includes:["requests","booking","flash","consent","artists","money","books","portal","sign","org"] },
-    grandsuite: { key:"grandsuite", name:"Grandsuite", rank:3, mo:1400, build:11000,
+    grandsuite: { key:"grandsuite", name:"Grandsuite", rank:3, mo:1400, build:4600,
       desc:"Nothing held back. Multi-location, guest-artist scheduling, dedicated environment, migration and your own branded booking site.",
       base:"Multi-location · guest artists · dedicated environment · migration · branded site",
       includes:["requests","booking","flash","consent","artists","money","books","portal","sign","org"] }
