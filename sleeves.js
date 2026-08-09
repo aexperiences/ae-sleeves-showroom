@@ -860,7 +860,7 @@
     var mo=Math.max(0,t.mo+am-om);
     return { tier:t, adds:adds, offs:offs, mo:mo, build:Math.max(0,t.build+ab-ob), rooms:rooms,
              alaMo:ala, savingMo:Math.max(0,ala-mo), changed:adds.length>0||offs.length>0 }; }
-  function priceLabel(){ var p=priceNow(); return money(p.mo)+"/mo · "+money(p.build)+" build"; }
+  function priceLabel(){ var p=priceNow(); return money(p.mo)+"/mo licensed"; }
 
   var SEATS = [
     { dept:"Front of house", dh:"Nyx",  ae:"Robin", focus:"Request response time, quote conversion, and whether every slot is deposit-backed." },
@@ -928,8 +928,7 @@
     bar.innerHTML='<button class="hamburger" id="hamburger" aria-label="Open menu">☰</button>'+
       '<div class="crumbs">Sleeves OS · <b>'+esc(crumb)+'</b></div><div class="spacer"></div>'+
       '<div class="tierpill" id="tierPillStatic"><span class="dot"></span><div><b>'+esc(p.tier.name)+
-      (p.changed?' <i class="cfg">configured</i>':'')+'</b> <span class="price">'+money(p.mo)+'/mo · '+money(p.build)+
-      ' build</span></div></div><div class="who"><div class="av">'+esc(ini)+'</div><div>'+esc(s.owner)+
+      (p.changed?' <i class="cfg">configured</i>':'')+'</b> <span class="price">'+money(p.mo)+'/mo licensed</span></div></div><div class="who"><div class="av">'+esc(ini)+'</div><div>'+esc(s.owner)+
       '<br><span class="muted small">Owner · '+esc(s.name)+'</span></div></div>';
     return bar; }
   function ribbon(){ return el('<div class="ribbon"><span class="live">LIVE SHOWROOM</span>'+
