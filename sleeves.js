@@ -30,7 +30,33 @@
   var KEY = "sleeves_os_v1";
   var STORE = (function(){ try{ localStorage.setItem('_t','1'); localStorage.removeItem('_t'); return localStorage; }catch(e){ return sessionStorage; } })();
   /* local noon — a UTC-midnight date reads as the previous day west of Greenwich */
-  var TODAY = new Date("2026-07-27T12:00:00");
+  /* TODAY IS THE REAL TODAY. The sample book was written as the week of Sun Jul 26 2026, seen on Monday the 27th (PIN).
+     Its week is laid onto the current week: every literal date moves by the same whole number of weeks (SHIFT), so
+     each job, visit or class keeps its weekday and "due Wednesday", "three days over" and "this week" read as
+     designed; dates computed from TODAY already follow it. A book saved in an earlier week is moved the same way
+     when it loads (rebase), so a returning visitor's story stays intact. Holidays and birthdays stay put.
+     On a Monday the showroom reads exactly as written; on a day the business is closed, today is quiet. */
+  var PIN = new Date("2026-07-27T12:00:00");
+  var TODAY = (function(){ var n = new Date(); return new Date(n.getFullYear(), n.getMonth(), n.getDate(), 12, 0, 0); })();
+  function iso10(d){ return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); }
+  function weekSunday(d){ var x = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 12); x.setDate(x.getDate() - x.getDay()); return x; }
+  function weeksBetween(a, b){ return Math.round((weekSunday(b) - weekSunday(a)) / 604800000); }
+  var SHIFT_DAYS = 7 * weeksBetween(PIN, TODAY);
+  function SHIFT(s, n){ n = n === undefined ? SHIFT_DAYS : n; if (!n || typeof s !== "string") return s;
+    var m = /^(\d{4})-(\d{2})-(\d{2})(.*)$/.exec(s); if (!m) return s;
+    var d = new Date(+m[1], +m[2] - 1, +m[3], 12); d.setDate(d.getDate() + n); return iso10(d) + m[4]; }
+  function rebase(o, n){
+    if (Array.isArray(o)) { for (var i = 0; i < o.length; i++) o[i] = rebase(o[i], n); return o; }
+    if (o && typeof o === "object") { Object.keys(o).forEach(function (k) { if (k !== "holidays" && k !== "dob" && k !== "born") o[k] = rebase(o[k], n); }); return o; }
+    return typeof o === "string" && /^\d{4}-\d{2}-\d{2}(T[\d:.]+Z?)?$/.test(o) ? SHIFT(o, n) : o; }
+  window.AOS_SHIFT = SHIFT;
+  var __read0 = read, __write0 = write, THIS_WEEK = iso10(weekSunday(TODAY));
+  read = function () { var d = __read0(); if (d && d._wk !== THIS_WEEK) {
+      var n = 7 * weeksBetween(d._wk ? new Date(d._wk + "T12:00:00") : PIN, TODAY);
+      if (n) rebase(d, n); d._wk = THIS_WEEK; delete d._day;
+      try { (typeof STORE !== "undefined" ? STORE : localStorage).setItem(KEY, JSON.stringify(d)); } catch (e) {} }
+    return d; };
+  write = function (d) { if (d && !d._wk) d._wk = THIS_WEEK; return __write0.apply(this, arguments); };
 
   function now(){ return Date.now(); }
   function iso(d){ var m=d.getMonth()+1, day=d.getDate();
@@ -168,51 +194,51 @@
   SEED.artists = [
     { id:"ar1", name:"Mira Halloway", handle:"@mira.ink", booth:"Station 1", status:"Active",
       styles:["American traditional","Neo-traditional","Cover-up"], rate:180, dayRate:1200,
-      shopCut:0, owner:true, since:"2016-05-02", rating:5.0,
+      shopCut:0, owner:true, since:SHIFT("2016-05-02"), rating:5.0,
       creds:{ "Bloodborne pathogen cert":credOn(7), "First aid / CPR":credOn(15),
               "Shop artist licence":credOn(9), "Hepatitis B vaccination":"complete" } },
     { id:"ar2", name:"Dez Okonkwo", handle:"@dez.blackwork", booth:"Station 2", status:"Active",
       styles:["Blackwork","Japanese / irezumi"], rate:170, dayRate:1150,
-      shopCut:0.30, owner:false, since:"2019-09-14", rating:4.9,
+      shopCut:0.30, owner:false, since:SHIFT("2019-09-14"), rating:4.9,
       creds:{ "Bloodborne pathogen cert":credOn(3), "First aid / CPR":credOn(11),
               "Shop artist licence":credOn(5), "Hepatitis B vaccination":"complete" } },
     { id:"ar3", name:"Saoirse Bell", handle:"@saoirse.fineline", booth:"Station 3", status:"Active",
       styles:["Fine line","Script / lettering"], rate:150, dayRate:1000,
-      shopCut:0.30, owner:false, since:"2022-03-08", rating:4.8,
+      shopCut:0.30, owner:false, since:SHIFT("2022-03-08"), rating:4.8,
       creds:{ "Bloodborne pathogen cert":credOn(-1), "First aid / CPR":credOn(8),
               "Shop artist licence":credOn(13), "Hepatitis B vaccination":"complete" } },
     { id:"ar4", name:"Ruben Castellanos", handle:"@ruben.bng", booth:"Station 4", status:"Active",
       styles:["Black & grey realism","Cover-up"], rate:190, dayRate:1300,
-      shopCut:0.30, owner:false, since:"2020-11-19", rating:4.9,
+      shopCut:0.30, owner:false, since:SHIFT("2020-11-19"), rating:4.9,
       creds:{ "Bloodborne pathogen cert":credOn(1), "First aid / CPR":credOn(19),
               "Shop artist licence":credOn(2), "Hepatitis B vaccination":"complete" } },
     { id:"ar5", name:"Wren Ashby", handle:"@wren.color", booth:"Station 5", status:"Apprentice",
       styles:["Color illustrative"], rate:90, dayRate:600,
-      shopCut:0.50, owner:false, since:"2026-02-02", rating:null,
+      shopCut:0.50, owner:false, since:SHIFT("2026-02-02"), rating:null,
       creds:{ "Bloodborne pathogen cert":credOn(10), "First aid / CPR":credOn(14),
               "Shop artist licence":credOn(16) } }
   ];
 
   SEED.clients = [
     { id:"cl1", name:"Tegan Moreau", phone:"(208) 555-0401", age:31, idOnFile:true,
-      health:[], existing:"Half sleeve left arm (ours, 2024)", since:"2024-04-11", note:"" },
+      health:[], existing:"Half sleeve left arm (ours, 2024)", since:SHIFT("2024-04-11"), note:"" },
     { id:"cl2", name:"Jonah Pike", phone:"(208) 555-0402", age:27, idOnFile:true,
-      health:["Diabetes"], existing:"None", since:"2026-06-02", note:"First tattoo. Nervous, talk him through it." },
+      health:["Diabetes"], existing:"None", since:SHIFT("2026-06-02"), note:"First tattoo. Nervous, talk him through it." },
     { id:"cl3", name:"Ines Vartanian", phone:"(208) 555-0403", age:44, idOnFile:true,
-      health:["Blood thinners"], existing:"Back piece (other shop)", since:"2025-01-20",
+      health:["Blood thinners"], existing:"Back piece (other shop)", since:SHIFT("2025-01-20"),
       note:"On warfarin — physician note required before any long sitting." },
     { id:"cl4", name:"Brody Lachance", phone:"(208) 555-0404", age:19, idOnFile:true,
-      health:[], existing:"Small script forearm", since:"2026-05-30", note:"Wants hand work — have the job-stopper talk." },
+      health:[], existing:"Small script forearm", since:SHIFT("2026-05-30"), note:"Wants hand work — have the job-stopper talk." },
     { id:"cl5", name:"Odalys Ferrer", phone:"(208) 555-0405", age:36, idOnFile:true,
-      health:["Latex allergy"], existing:"Full sleeve right (ours, in progress)", since:"2025-08-15",
+      health:["Latex allergy"], existing:"Full sleeve right (ours, in progress)", since:SHIFT("2025-08-15"),
       note:"Nitrile only. Station set up accordingly." },
     { id:"cl6", name:"Kit Sandoval", phone:"(208) 555-0406", age:23, idOnFile:false,
-      health:[], existing:"None", since:"2026-07-24", note:"ID not yet on file — must check at the door." },
+      health:[], existing:"None", since:SHIFT("2026-07-24"), note:"ID not yet on file — must check at the door." },
     { id:"cl7", name:"Marguerite Loeb", phone:"(208) 555-0407", age:52, idOnFile:true,
-      health:["Keloid scarring history"], existing:"Two small pieces", since:"2026-03-11",
+      health:["Keloid scarring history"], existing:"Two small pieces", since:SHIFT("2026-03-11"),
       note:"Keloid history — placement discussion documented." },
     { id:"cl8", name:"Ash Dunmore", phone:"(208) 555-0408", age:17, idOnFile:true,
-      health:["Under 18"], existing:"None", since:"2026-07-26",
+      health:["Under 18"], existing:"None", since:SHIFT("2026-07-26"),
       note:"SEVENTEEN. Cannot be tattooed. Told to come back after their birthday in November." }
   ];
 

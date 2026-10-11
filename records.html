@@ -60,14 +60,14 @@
 
   /* Seeded records — real McArthur artifacts where they exist, honestly labeled. */
   var SEED=[
-    {cab:"waivers",name:"Signed waiver — Tegan Moreau",kind:"pdf",tag:"sot",who:"Mira Halloway",when:"2026-07-24",note:""},
-    {cab:"licences",name:"Bloodborne cert — S. Bell",kind:"pdf",tag:"",who:"Mira Halloway",when:"2025-06-14",note:"EXPIRED"},
-    {cab:"health",name:"Panhandle Health inspection — pass",kind:"pdf",tag:"sot",who:"Mira Halloway",when:"2026-04-18",note:""},
-    {cab:"health",name:"Autoclave spore test — weekly log",kind:"csv",tag:"sot",who:"Mira Halloway",when:"2026-07-27",note:""},
-    {cab:"booth",name:"Booth rental — Wren Ashby",kind:"pdf",tag:"sot",who:"Mira Halloway",when:"2026-02-03",note:""},
-    {cab:"flash",name:"Flash wall inventory — current",kind:"csv",tag:"sot",who:"Mira Halloway",when:"2026-07-26",note:""},
-    {cab:"insurance",name:"Liability policy — 2026",kind:"pdf",tag:"sot",who:"Mira Halloway",when:"2026-01-08",note:""},
-    {cab:"money",name:"Price list & deposit policy — 2026",kind:"pdf",tag:"sot",who:"Mira Halloway",when:"2026-03-02",note:""}
+    {cab:"waivers",name:"Signed waiver — Tegan Moreau",kind:"pdf",tag:"sot",who:"Mira Halloway",when:(window.AOS_SHIFT||String)("2026-07-24"),note:""},
+    {cab:"licences",name:"Bloodborne cert — S. Bell",kind:"pdf",tag:"",who:"Mira Halloway",when:(window.AOS_SHIFT||String)("2025-06-14"),note:"EXPIRED"},
+    {cab:"health",name:"Panhandle Health inspection — pass",kind:"pdf",tag:"sot",who:"Mira Halloway",when:(window.AOS_SHIFT||String)("2026-04-18"),note:""},
+    {cab:"health",name:"Autoclave spore test — weekly log",kind:"csv",tag:"sot",who:"Mira Halloway",when:(window.AOS_SHIFT||String)("2026-07-27"),note:""},
+    {cab:"booth",name:"Booth rental — Wren Ashby",kind:"pdf",tag:"sot",who:"Mira Halloway",when:(window.AOS_SHIFT||String)("2026-02-03"),note:""},
+    {cab:"flash",name:"Flash wall inventory — current",kind:"csv",tag:"sot",who:"Mira Halloway",when:(window.AOS_SHIFT||String)("2026-07-26"),note:""},
+    {cab:"insurance",name:"Liability policy — 2026",kind:"pdf",tag:"sot",who:"Mira Halloway",when:(window.AOS_SHIFT||String)("2026-01-08"),note:""},
+    {cab:"money",name:"Price list & deposit policy — 2026",kind:"pdf",tag:"sot",who:"Mira Halloway",when:(window.AOS_SHIFT||String)("2026-03-02"),note:""}
   ];
 
   function load(){ try{ var d=JSON.parse(sessionStorage.getItem(KEY)); if(d&&d.length) return d; }catch(e){} return SEED.slice(); }
