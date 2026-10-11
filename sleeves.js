@@ -37,7 +37,7 @@
     return d.getFullYear()+"-"+(m<10?"0":"")+m+"-"+(day<10?"0":"")+day; }
   function addDays(d,n){ var x=new Date(d.getTime()); x.setDate(x.getDate()+n); return x; }
   function addMonths(d,n){ var x=new Date(d.getTime()); x.setMonth(x.getMonth()+n); return x; }
-  function read(){ try{ var d=JSON.parse(STORE.getItem(KEY)); return d||null; }catch(e){ return null; } }
+  function read(){ try{ var raw=STORE.getItem(KEY); if(raw&&/olour/.test(raw)) raw=raw.replace(/Colour/g,"Color").replace(/colour/g,"color"); var d=JSON.parse(raw); return d||null; }catch(e){ return null; } }
   function write(d){ d._t=now(); try{ STORE.setItem(KEY, JSON.stringify(d)); }catch(e){} }
   function clone(a){ return JSON.parse(JSON.stringify(a)); }
   var WEEK_START=(function(){ var d=new Date(TODAY.getTime()); d.setDate(d.getDate()-d.getDay()); return d; })();
@@ -68,7 +68,7 @@
     { k:"Japanese / irezumi",   color:"#2e6b45" },
     { k:"Blackwork",            color:"#332a44" },
     { k:"Script / lettering",   color:"#8a6d3b" },
-    { k:"Colour illustrative",  color:"#7a5aa8" },
+    { k:"Color illustrative",  color:"#7a5aa8" },
     { k:"Cover-up",             color:"#a0522d" }
   ];
   function styleColor(k){ var s=STYLES.filter(function(x){return x.k===k;})[0]; return s?s.color:"#8d84a0"; }
@@ -186,8 +186,8 @@
       shopCut:0.30, owner:false, since:"2020-11-19", rating:4.9,
       creds:{ "Bloodborne pathogen cert":credOn(1), "First aid / CPR":credOn(19),
               "Shop artist licence":credOn(2), "Hepatitis B vaccination":"complete" } },
-    { id:"ar5", name:"Wren Ashby", handle:"@wren.colour", booth:"Station 5", status:"Apprentice",
-      styles:["Colour illustrative"], rate:90, dayRate:600,
+    { id:"ar5", name:"Wren Ashby", handle:"@wren.color", booth:"Station 5", status:"Apprentice",
+      styles:["Color illustrative"], rate:90, dayRate:600,
       shopCut:0.50, owner:false, since:"2026-02-02", rating:null,
       creds:{ "Bloodborne pathogen cert":credOn(10), "First aid / CPR":credOn(14),
               "Shop artist licence":credOn(16) } }
@@ -237,7 +237,7 @@
     { id:"rq5", clientId:"cl7", artistId:"ar1", stage:"New request",
       style:"Neo-traditional", placement:"Upper arm", sizeIn:5, budget:700,
       refs:4, received:iso(TODAY), quote:0, depositPaid:0,
-      desc:"Neo-traditional peony, colour, upper arm." },
+      desc:"Neo-traditional peony, color, upper arm." },
     { id:"rq6", clientId:"cl3", artistId:"ar4", stage:"Under review",
       style:"Cover-up", placement:"Back piece", sizeIn:14, budget:2500,
       refs:5, received:iso(addDays(TODAY,-4)), quote:0, depositPaid:0,
@@ -247,9 +247,9 @@
       received:iso(addDays(TODAY,-1)), quote:0, depositPaid:0,
       desc:"DECLINED — client is 17. Invited back after their birthday." },
     { id:"rq8", clientId:"cl6", artistId:"ar5", stage:"Deposit due",
-      style:"Colour illustrative", placement:"Calf", sizeIn:7, budget:800,
+      style:"Color illustrative", placement:"Calf", sizeIn:7, budget:800,
       refs:4, received:iso(addDays(TODAY,-3)), quote:720, depositPaid:0,
-      desc:"Colour mushroom scene, calf. Apprentice rate." }
+      desc:"Color mushroom scene, calf. Apprentice rate." }
   ];
 
   SEED.sessions = (function(){
@@ -288,7 +288,7 @@
     { id:"fl6", artistId:"ar3", title:"Fine-line fern",       style:"Fine line",            price:180, sizeIn:4, status:"Tattooed",  claimedBy:"cl7" },
     { id:"fl7", artistId:"ar3", title:"Script — 'hold fast'", style:"Script / lettering",   price:200, sizeIn:5, status:"Available", claimedBy:null },
     { id:"fl8", artistId:"ar4", title:"Grey-wash skull",      style:"Black & grey realism", price:560, sizeIn:8, status:"Available", claimedBy:null },
-    { id:"fl9", artistId:"ar5", title:"Colour toadstool",     style:"Colour illustrative",  price:220, sizeIn:4, status:"Available", claimedBy:null }
+    { id:"fl9", artistId:"ar5", title:"Color toadstool",     style:"Color illustrative",  price:220, sizeIn:4, status:"Available", claimedBy:null }
   ];
 
   SEED.systems = [
@@ -1023,7 +1023,24 @@
 
   document.addEventListener("visibilitychange",function(){ if(!document.hidden) db(); });
 
+
+  /* ====================================================================
+     THE ARTWORK — a tattoo shop is judged by its art, so the sample book
+     carries real pictures: flash on the wall, healed work in each artist's
+     portfolio, and the reference photos clients attach to a request.
+     Keyed by record id; a record with no art simply shows none.
+     ==================================================================== */
+  var ART = {
+    flash:   { fl1:1, fl2:1, fl3:1, fl4:1, fl5:1, fl6:1, fl7:1, fl8:1, fl9:1 },
+    artists: { ar1:3, ar2:3, ar3:3, ar4:3, ar5:3 },
+    refs:    { rq1:1, rq2:1, rq3:1, rq4:3, rq5:1, rq6:1, rq8:1 }
+  };
+  function flashArt(id){ return ART.flash[id] ? "art/flash/"+id+".jpg" : null; }
+  function artistArt(id){ var n=ART.artists[id]||0, out=[]; for(var i=1;i<=n;i++) out.push("art/artists/"+id+"-"+i+".jpg"); return out; }
+  function refArt(id){ var n=ART.refs[id]||0, out=[]; for(var i=1;i<=n;i++) out.push("art/refs/"+id+"-"+i+".jpg"); return out; }
+
   global.Sleeves = {
+    flashArt:flashArt, artistArt:artistArt, refArt:refArt,
     db:db, save:save, fresh:fresh, goLive:goLive, isSample:isSample, SEED:SEED, TODAY:TODAY,
     iso:iso, addDays:addDays, weekOf:weekOf, thisWeek:thisWeek, lastWeek:lastWeek,
     sessionsInWeek:sessionsInWeek, daysUntil:daysUntil,

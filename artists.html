@@ -58,6 +58,8 @@
         (bl.length?S.tag("BLOCKED","bad"):"")+'</div>'+
         (bl.length?'<div class="note warn"><b>Cannot be scheduled.</b> '+S.esc(bl.join(" · "))+
           (mine.length?' They have <b>'+mine.length+'</b> session(s) on the books this week that need moving.':'')+'</div>':'')+
+        (function(){ var pics=S.artistArt(a.id); return pics.length?'<div class="artlabel">Portfolio · healed work</div><div class="pf">'+
+          pics.map(function(src){return '<img src="'+src+'" alt="Healed tattoo by '+S.esc(a.name)+'" loading="lazy">';}).join("")+'</div>':''; })()+
         '<table class="kv"><tbody>'+
           '<tr><th>Styles</th><td>'+a.styles.map(function(st){
             return '<span class="chip static"><span class="dotc" style="background:'+S.styleColor(st)+'"></span>'+S.esc(st)+'</span>';}).join("")+'</td></tr>'+

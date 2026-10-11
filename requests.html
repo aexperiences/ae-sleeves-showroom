@@ -53,6 +53,8 @@
         '<p class="sub">'+S.esc(a?a.name:"unassigned")+' · received '+S.esc(r.received)+' · '+r.refs+' reference photo(s) · '+
           (r.sizeIn?r.sizeIn+' in':'multi-session')+' · budget '+S.money(r.budget)+'</p>'+
         '<p>'+S.esc(r.desc)+'</p>'+
+        (function(){ var pics=S.refArt(r.id); return pics.length?'<div class="artlabel">Client reference</div><div class="rf">'+
+          pics.map(function(src){return '<img src="'+src+'" alt="Client reference photo" loading="lazy">';}).join("")+'</div>':''; })()+
         (blockers.length?'<div class="note warn"><b>Before this goes anywhere:</b><ul>'+
           blockers.map(function(b){return '<li>'+S.esc(b)+'</li>';}).join("")+'</ul></div>':'')+
         (flag?'<div class="note"><b>'+S.esc(r.placement)+'.</b> '+S.esc(flag)+'</div>':'')+

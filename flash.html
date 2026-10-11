@@ -35,7 +35,19 @@
       S.stat("Claimed",all.filter(function(f){return f.status==="Claimed";}).length,"Spoken for, not yet tattooed","watch")+
       S.stat("Tattooed",all.filter(function(f){return f.status==="Tattooed";}).length,"Retired for good")+
       S.stat("Wall value",S.money(S.flashAvailable().reduce(function(a,f){return a+f.price;},0)),"If everything available sold")+'</div>'));
-  
+
+    host.appendChild(S.card('<h2>The wall</h2>'+
+      '<p class="sub">What a client sees when they walk up. Claim one and it comes off the wall.</p>'+
+      '<div class="wall">'+all.map(function(f){
+        var src=S.flashArt(f.id);
+        return '<div class="wcard'+(f.status==="Available"?'':' gone')+'"><div class="wart">'+
+          (src?'<img src="'+src+'" alt="'+S.esc(f.title)+' flash" loading="lazy">':'<div class="noart">No drawing yet<br>'+S.esc(f.title)+'</div>')+
+          '</div><div class="wmeta"><div class="wt">'+S.esc(f.title)+'</div>'+
+          '<div class="ws">'+S.esc(S.artistName(f.artistId))+' · '+f.sizeIn+' in · '+S.money(f.price)+'</div>'+
+          (f.status==="Available"?S.tag("on the wall","good"):f.status==="Claimed"?S.tag("claimed","watch"):S.tag("tattooed",""))+
+          '</div></div>';
+      }).join("")+'</div>'));
+
     S.db().artists.forEach(function(a){
       var mine=all.filter(function(f){return f.artistId===a.id;});
       if(!mine.length) return;
@@ -44,7 +56,8 @@
         '<div class="tablewrap"><table><thead><tr><th>Design</th><th>Style</th><th class="right">Size</th>'+
         '<th class="right">Price</th><th>Status</th><th></th></tr></thead><tbody>'+
         mine.map(function(f){
-          return '<tr><td><b>'+S.esc(f.title)+'</b></td>'+
+          var th=S.flashArt(f.id);
+          return '<tr><td>'+(th?'<img src="'+th+'" alt="" loading="lazy" style="width:40px;height:40px;object-fit:cover;border-radius:6px;vertical-align:middle;margin-right:10px;border:1px solid #e6dcc2">':'')+'<b>'+S.esc(f.title)+'</b></td>'+
             '<td><span class="dotc" style="background:'+S.styleColor(f.style)+'"></span>'+S.esc(f.style)+'</td>'+
             '<td class="right mono">'+f.sizeIn+' in</td><td class="right mono">'+S.money(f.price)+'</td>'+
             '<td>'+(f.status==="Available"?S.tag("on the wall","good"):
