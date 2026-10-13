@@ -1,3 +1,5 @@
+/* Studio phone showroom (Oct 12 2026, Anthony: "I don't want that message in the apps... one message outside the phones for all"). When this system is shown inside another page, the LIVE SHOWROOM ribbon does not draw; the Studio says it once, under the phones. Opened on its own, nothing changes. */
+(function(){try{if(window.self!==window.top){var s=document.createElement("style");s.textContent=".ribbon{display:none!important}";(document.head||document.documentElement).appendChild(s);}}catch(e){}})();
 /* ============================================================================
    SLEEVES OS — SHOWROOM ENGINE
    Tattoo Studio OS · AETRIAD Powered · Accelerated Experiences LLC
