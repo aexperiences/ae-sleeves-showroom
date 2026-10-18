@@ -6,7 +6,7 @@
   window.BIRDSEYE = {
     id: "sleeves", engine: "Sleeves", routing: "multipage", home: "dashboard.html",
     trade: "Tattoo shop (requests, deposits, consent & health, booth rent, flash)",
-    brand: {"name": "Sleeves OS", "short": "Sleeves", "iconFile": "Sleeves_OS.png", "version": "V. Birdseye 1.0", "line": "Mothership", "icon": "birdseye/os-icon.png", "aos": "birdseye/marks/aos-business.png", "aeMark": "birdseye/marks/ae-mark.png", "store": "https://aexperiences.studio/store.html"},
+    brand: {"name": "Sleeves OS", "short": "Sleeves", "iconFile": "Sleeves_OS.png", "version": "V. Birdseye 1.0", "line": "Mothership", "icon": "birdseye/os-icon.png", "aos": "birdseye/marks/aos-business.png", "aeMark": "birdseye/marks/ae-mark.png", "birdseyeIcon": "birdseye/marks/birdseye.png", "store": "https://aexperiences.studio/store.html"},
     houseNoun: "shop",
     houseName: function(E,D,H,S){ return (D.shop && D.shop.name); },
     today: function(E,D,H,S){ return (E.TODAY); },
