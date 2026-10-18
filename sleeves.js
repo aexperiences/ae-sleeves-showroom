@@ -857,6 +857,7 @@
       { href:"flash.html",     label:"Flash Wall",      ic:"◈", room:"flash",    accent:"flash" } ]},
     { group:"The Chair", items:[
       { href:"consent.html",   label:"Consent & Health",ic:"⛨", room:"consent",  accent:"consent" },
+      { href:"aimos.html",     label:"Back Bar",        ic:"▦", accent:"consent", icon:"icons/aimos-supplies.svg" },
       { href:"artists.html",   label:"Artists",         ic:"★", room:"artists",  accent:"artists" },
       { href:"portal.html",    label:"Client Portal",   ic:"☗", room:"portal",   accent:"portal" } ]},
     { group:"Paper", items:[
