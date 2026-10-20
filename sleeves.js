@@ -2,7 +2,7 @@
 (function(){try{if(window.self!==window.top){var s=document.createElement("style");s.textContent=".ribbon{display:none!important}";(document.head||document.documentElement).appendChild(s);}}catch(e){}})();
 /* ============================================================================
    SLEEVES OS — SHOWROOM ENGINE
-   Tattoo Studio OS · AETRIAD Powered · Accelerated Experiences LLC
+   Tattoo Studio OS · Accelerated Operating Systems · Accelerated Experiences LLC
 
    BROWSER-ONLY. Business data lives in this browser's localStorage.
 
@@ -965,7 +965,7 @@
     ' — this is the real operating system, not a slideshow. Type anywhere; it saves in your browser. '+
     'The studio, artists and clients below are a realistic sample book. '+
     '<a href="javascript:void(0)" id="resetFloor">Start with a clean slate</a></div>'); }
-  function footer(){ return el('<div class="ae-credit"><a href="https://www.aexperiences.com/" class="ae-triad" aria-label="AETRIAD Powered - Accelerated Experiences LLC"><img src="/marks/aetriad-powered.png" alt="AETRIAD Powered" style="height:30px;width:auto;vertical-align:middle"></a><br>Sleeves OS is a '+
+  function footer(){ return el('<div class="ae-credit"><a href="https://www.aexperiences.com/" class="ae-triad" aria-label="AOS — Accelerated Experiences LLC"><img src="/marks/aos-badge.png" alt="AOS — Accelerated Operating Systems" style="height:30px;width:auto;vertical-align:middle"></a><br>Sleeves OS is a '+
     'white-label build. Sample data is a fictional studio. Benchmarks are sourced or shown blank — never invented. '+
     'Nothing here is legal, medical or licensing advice.</div>'); }
   function toast(m,k){ var w=document.getElementById("toast-wrap"); if(!w) return;
