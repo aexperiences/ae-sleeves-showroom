@@ -850,7 +850,7 @@
       { href:"contacts.html",  label:"Contacts",       ic:"☎" },
       { href:"connect.html",   label:"Connect · Video",ic:"◉" },
       { href:"records.html",   label:"Records · Filing",ic:"▤" },
-      { href:"approvals.html", label:"Approval Desk",  ic:"✓", accent:"ops" } ]},
+      { href:"approvals.html", label:"Approval Desk",  ic:"✓", accent:"ops" }, { href:"masterlist.html", label:"Master List", ic:"✎" }, { href:"mail.html", label:"Mail", ic:"✉" } ]},
     { group:"The Queue", items:[
       { href:"requests.html",  label:"Requests & Review",ic:"✦", room:"requests", accent:"requests" },
       { href:"booking.html",   label:"Booking & Deposits",ic:"▦", room:"booking", accent:"book" },
@@ -861,10 +861,11 @@
       { href:"artists.html",   label:"Artists",         ic:"★", room:"artists",  accent:"artists" },
       { href:"portal.html",    label:"Client Portal",   ic:"☗", room:"portal",   accent:"portal" } ]},
     { group:"Paper", items:[
-      { href:"sign.html",      label:"e-Sign",          ic:"✍", room:"sign",     accent:"sign" } ]},
+      { href:"sign.html",      label:"e-Sign",          ic:"✍", room:"sign",     accent:"sign" }, { href:"documents.html", label:"Documents", ic:"▤" } ]},
     { group:"Money", items:[
       { href:"money.html",     label:"Money & Booth Rent",ic:"◧", room:"money",  accent:"money" },
       { href:"books.html",     label:"Books & Metrics", ic:"◭", room:"books",    accent:"money" } ]},
+    { group:"The House", items:[ { href:"manual.html", label:"Owner's Manual", ic:"?" }, { href:"it.html", label:"IT · System Health", ic:"♥" }, { href:"hr.html", label:"HR · People Ops", ic:"☷" }, { href:"law.html", label:"Law · Contracts", ic:"⚖" }, { href:"skins.html", label:"Skins", ic:"◐" } ] },
     { group:"The Org", items:[
       { href:"org.html",       label:"Agent Org · Bus", ic:"❖", room:"org",      accent:"ops" } ]}
   ];
