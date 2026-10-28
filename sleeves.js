@@ -965,8 +965,8 @@
     ' — this is the real operating system, not a slideshow. Type anywhere; it saves in your browser. '+
     'The studio, artists and clients below are a realistic sample book. '+
     '<a href="javascript:void(0)" id="resetFloor">Start with a clean slate</a></div>'); }
-  function footer(){ return el('<div class="ae-credit"><a href="https://www.aexperiences.com/" class="ae-triad" aria-label="AOS — Accelerated Experiences LLC"><img src="/marks/aos-badge.png" alt="AOS — Accelerated Operating Systems" style="height:30px;width:auto;vertical-align:middle"></a><br>Sleeves OS is a '+
-    'white-label build. Sample data is a fictional studio. Benchmarks are sourced or shown blank — never invented. '+
+  function footer(){ return el('<div class="ae-credit"><a href="https://www.aexperiences.com/" class="ae-triad" aria-label="AOS — Accelerated Experiences LLC"><img src="/marks/aos-badge.png" alt="AOS — Accelerated Operating Systems" style="height:30px;width:auto;vertical-align:middle"></a><br>Sleeves OS is an '+
+    'Accelerated Operating System by Accelerated Experiences LLC. Sample data is a fictional studio. Benchmarks are sourced or shown blank — never invented. '+
     'Nothing here is legal, medical or licensing advice.</div>'); }
   function toast(m,k){ var w=document.getElementById("toast-wrap"); if(!w) return;
     var t=el('<div class="toast '+(k||"")+'">'+esc(m)+'</div>'); w.appendChild(t);
